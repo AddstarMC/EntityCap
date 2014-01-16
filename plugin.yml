@@ -1,0 +1,4 @@
+name: EntityCap
+version: ${pom.version}
+
+main: au.com.addstar.entitycap.EntityCap
