@@ -1,0 +1,19 @@
+
+# Whether to output when entities are removed
+output_to_console: false
+
+# All autorun enabled groups will be executed with this delay between runs.
+# Default is 1200 ticks, or 1 minute
+ticks_between_run: 1200
+
+SpawnerFarms:
+  max_entities: 50
+  radius: 17 
+  autorun: true
+  mob_types:
+   - ZOMBIE
+   - SPIDER
+   - CAVE_SPIDER
+   - SKELETON
+   - BLAZE
+   - SILVERFISH 

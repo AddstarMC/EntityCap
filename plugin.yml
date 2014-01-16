@@ -1,4 +1,8 @@
 name: EntityCap
 version: ${pom.version}
 
-main: au.com.addstar.entitycap.EntityCap
+main: au.com.addstar.entitycap.EntityCapPlugin
+
+permissions:
+  entitycap.bypass:
+    default: op
