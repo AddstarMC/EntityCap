@@ -6,3 +6,30 @@ main: au.com.addstar.entitycap.EntityCapPlugin
 permissions:
   entitycap.bypass:
     default: op
+  entitycap.command:
+    default: op
+  entitycap.command.all:
+    default: op  
+    children:
+      entitycap.run: true
+      entitycap.check: true
+      entitycap.info: true
+  entitycap.run:
+    default: op
+    children:
+      entitycap.command: true
+  entitycap.check:
+    default: op
+    children:
+      entitycap.command: true
+  entitycap.info:
+    default: op
+    children:
+      entitycap.command: true
+        
+commands:
+  entitycap:
+    usage: /<command> check|info|run 
+    aliases: ecap
+    permission: entitycap.command
+    

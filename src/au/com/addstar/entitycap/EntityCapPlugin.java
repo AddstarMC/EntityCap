@@ -38,6 +38,8 @@ public class EntityCapPlugin extends JavaPlugin
 			return;
 		}
 		
+		getCommand("entitycap").setExecutor(new CapCommand(this));
+		
 		Bukkit.getScheduler().runTaskTimer(this, new EntityKillerTask(this), mInterval, mInterval);
 	}
 	
@@ -96,7 +98,7 @@ public class EntityCapPlugin extends JavaPlugin
 			if(player.hasPermission("entitycap.bypass"))
 				continue;
 			
-			List<Entity> nearby = player.getNearbyEntities(maxRadius, 255, maxRadius);
+			List<Entity> nearby = player.getNearbyEntities(maxRadius, maxRadius, maxRadius);
 			player.getLocation(playerLoc);
 			
 			int index = 0;
