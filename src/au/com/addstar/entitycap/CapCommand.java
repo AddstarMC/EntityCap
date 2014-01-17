@@ -126,11 +126,19 @@ public class CapCommand implements CommandExecutor
 			return;
 		}
 		
-		Player player = Bukkit.getPlayer(args[0]);
-		if(player == null)
+		Player[] players;
+		
+		if(args[0].equals("ALL"))
+			players = Bukkit.getOnlinePlayers();
+		else
 		{
-			sender.sendMessage(ChatColor.RED + "Unknown player " + args[0]);
-			return;
+			Player player = Bukkit.getPlayer(args[0]);
+			if(player == null)
+			{
+				sender.sendMessage(ChatColor.RED + "Unknown player " + args[0]);
+				return;
+			}
+			players = new Player[] {player};
 		}
 		
 		Collection<GroupSettings> allGroups = mPlugin.getGroups(true);
@@ -166,47 +174,78 @@ public class CapCommand implements CommandExecutor
 			maxRadius = Math.max(maxRadius, setting.getRadius());
 		
 		Location temp = new Location(null, 0, 0, 0);
-		Location playerLoc = player.getLocation();
-		
-		List<Entity> nearby = player.getNearbyEntities(maxRadius, maxRadius, maxRadius);
-		
+		Location playerLoc = new Location(null, 0, 0, 0);
+		String[] playerLists = new String[allGroups.size()];
+		Arrays.fill(playerLists, "");
+
 		boolean[] matches = new boolean[allGroups.size()];
 		boolean matchedAny = false;
 		
-		int index = 0;
-		for(GroupSettings group : allGroups)
+		for(Player player : players)
 		{
-			int radius = group.getRadius() * group.getRadius();
-			int count = 0;
+			player.getLocation(playerLoc);
+			List<Entity> nearby = player.getNearbyEntities(maxRadius, maxRadius, maxRadius);
 			
-			for(Entity ent : nearby)
-			{
-				ent.getLocation(temp);
-				if(ent.isValid() && group.matches(ent) && temp.distanceSquared(playerLoc) <= radius)
-					++count;
-			}
-			
-			if(count > group.getMaxEntities())
-			{
-				matches[index] = true;
-				matchedAny = true;
-			}
-			++index;
-		}
-		
-		if(matchedAny)
-		{
-			sender.sendMessage(ChatColor.GOLD + String.format("%s is exceeding the following rules:", player.getName()));
-			index = 0;
+			int index = 0;
 			for(GroupSettings group : allGroups)
 			{
-				if(matches[index])
-					sender.sendMessage(ChatColor.GRAY + "* " + ChatColor.YELLOW + group.getName());
+				int radius = group.getRadius() * group.getRadius();
+				int count = 0;
+				
+				for(Entity ent : nearby)
+				{
+					ent.getLocation(temp);
+					if(ent.isValid() && group.matches(ent) && temp.distanceSquared(playerLoc) <= radius)
+						++count;
+				}
+				
+				if(count > group.getMaxEntities())
+				{
+					matches[index] = true;
+					if(!playerLists[index].isEmpty())
+						playerLists[index] += ", ";
+					playerLists[index] += player.getName();
+					
+					matchedAny = true;
+				}
 				++index;
 			}
+			
+			if(players.length == 1)
+			{
+				if(matchedAny)
+				{
+					sender.sendMessage(ChatColor.GOLD + String.format("%s is exceeding the following rules:", player.getName()));
+					index = 0;
+					for(GroupSettings group : allGroups)
+					{
+						if(matches[index])
+							sender.sendMessage(ChatColor.GRAY + "* " + ChatColor.YELLOW + group.getName());
+						++index;
+					}
+				}
+				else
+					sender.sendMessage(ChatColor.GREEN + String.format("%s is not exceeding any rules", player.getName()));
+			}
 		}
-		else
-			sender.sendMessage(ChatColor.GREEN + String.format("%s is not exceeding any rules", player.getName()));
+		
+		if(players.length != 1)
+		{
+			sender.sendMessage(ChatColor.GOLD + "Rules being exceeded currently: ");
+			if(!matchedAny)
+				sender.sendMessage(ChatColor.GREEN + " None");
+			else
+			{
+				int index = 0;
+				for(GroupSettings group : allGroups)
+				{
+					if(matches[index])
+						sender.sendMessage(ChatColor.YELLOW + " " + group.getName() + ChatColor.GRAY + ": " + playerLists[index]);
+					
+					++index;
+				}
+			}
+		}
 	}
 	
 	private void handleRun(CommandSender sender, String label, String[] args)
