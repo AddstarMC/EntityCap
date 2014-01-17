@@ -204,7 +204,7 @@ public class CapCommand implements CommandExecutor
 					matches[index] = true;
 					if(!playerLists[index].isEmpty())
 						playerLists[index] += ", ";
-					playerLists[index] += player.getName();
+					playerLists[index] += String.format("%s(%d)", player.getName(), count);
 					
 					matchedAny = true;
 				}
