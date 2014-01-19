@@ -104,6 +104,9 @@ public class EntityCapPlugin extends JavaPlugin
 			int index = 0;
 			for(GroupSettings group : settings)
 			{
+				if(group.warnOnly())
+					continue;
+				
 				int radius = group.getRadius() * group.getRadius();
 				int count = 0;
 				

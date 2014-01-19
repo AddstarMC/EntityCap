@@ -199,7 +199,7 @@ public class CapCommand implements CommandExecutor
 						++count;
 				}
 				
-				if(count > group.getMaxEntities())
+				if(count > group.getMaxEntities() || (count > group.getWarnThreshold() && group.getWarnThreshold() != 0))
 				{
 					matches[index] = true;
 					if(!playerLists[index].isEmpty())

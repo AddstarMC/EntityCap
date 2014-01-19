@@ -16,6 +16,8 @@ public class GroupSettings
 	private int mRadius;
 	private boolean mAutoRun;
 	private String mName;
+	private boolean mDisableKill;
+	private int mWarnThreshold;
 	
 	public GroupSettings()
 	{
@@ -53,6 +55,16 @@ public class GroupSettings
 		return mAutoRun;
 	}
 	
+	public boolean warnOnly()
+	{
+		return mDisableKill;
+	}
+	
+	public int getWarnThreshold()
+	{
+		return mWarnThreshold;
+	}
+	
 	public void load(ConfigurationSection section) throws InvalidConfigurationException
 	{
 		mActiveTypes.clear();
@@ -60,6 +72,8 @@ public class GroupSettings
 		mMaxAmount = section.getInt("max_entities");
 		mRadius = section.getInt("radius");
 		mAutoRun = section.getBoolean("autorun");
+		mWarnThreshold = section.getInt("warn_threshold", 0);
+		mDisableKill = section.getBoolean("check_only", false);
 		
 		List<String> types = section.getStringList("mob_types");
 		if(types == null)
