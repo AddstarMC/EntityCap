@@ -204,46 +204,31 @@ public class CapCommand implements CommandExecutor
 					matches[index] = true;
 					if(!playerLists[index].isEmpty())
 						playerLists[index] += ", ";
-					playerLists[index] += String.format("%s(%d)", player.getName(), count);
+					
+					if(count > group.getMaxEntities())
+						playerLists[index] += ChatColor.translateAlternateColorCodes('&', String.format("%s(&c%d&7)", player.getName(), count));
+					else
+						playerLists[index] += ChatColor.translateAlternateColorCodes('&', String.format("%s(&e%d&7)", player.getName(), count));
+						
 					
 					matchedAny = true;
 				}
 				++index;
 			}
-			
-			if(players.length == 1)
-			{
-				if(matchedAny)
-				{
-					sender.sendMessage(ChatColor.GOLD + String.format("%s is exceeding the following rules:", player.getName()));
-					index = 0;
-					for(GroupSettings group : allGroups)
-					{
-						if(matches[index])
-							sender.sendMessage(ChatColor.GRAY + "* " + ChatColor.YELLOW + group.getName());
-						++index;
-					}
-				}
-				else
-					sender.sendMessage(ChatColor.GREEN + String.format("%s is not exceeding any rules", player.getName()));
-			}
 		}
 		
-		if(players.length != 1)
+		sender.sendMessage(ChatColor.GOLD + "Rules being exceeded currently: ");
+		if(!matchedAny)
+			sender.sendMessage(ChatColor.GREEN + " None");
+		else
 		{
-			sender.sendMessage(ChatColor.GOLD + "Rules being exceeded currently: ");
-			if(!matchedAny)
-				sender.sendMessage(ChatColor.GREEN + " None");
-			else
+			int index = 0;
+			for(GroupSettings group : allGroups)
 			{
-				int index = 0;
-				for(GroupSettings group : allGroups)
-				{
-					if(matches[index])
-						sender.sendMessage(ChatColor.YELLOW + " " + group.getName() + ChatColor.GRAY + ": " + playerLists[index]);
-					
-					++index;
-				}
+				if(matches[index])
+					sender.sendMessage(ChatColor.YELLOW + " " + group.getName() + ChatColor.GRAY + ": " + playerLists[index]);
+				
+				++index;
 			}
 		}
 	}
