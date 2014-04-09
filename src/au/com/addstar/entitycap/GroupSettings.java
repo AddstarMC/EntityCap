@@ -7,6 +7,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Tameable;
 
 public class GroupSettings
@@ -36,6 +37,9 @@ public class GroupSettings
 		
 		if(e instanceof Tameable)
 			return !((Tameable)e).isTamed();
+		
+		if(e instanceof LivingEntity)
+			return ((LivingEntity) e).getCustomName() == null;
 		
 		return true;
 	}
