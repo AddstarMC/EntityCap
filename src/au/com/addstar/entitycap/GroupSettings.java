@@ -53,13 +53,13 @@ public class GroupSettings
 	
 	public boolean matches(EntityGroup group)
 	{
-		return group.getEntities().size() >= mMaxAmount && group.getDensity() >= mMaxDensity;
+		return group.getEntities().size() > mMaxAmount && group.getDensity() > mMaxDensity;
 	}
 	
 	public boolean matchesWarn(EntityGroup group)
 	{
 		int count = (mWarnThreshold == 0 ? mMaxAmount : mWarnThreshold);
-		return group.getEntities().size() >= count && group.getDensity() >= mMaxDensity;
+		return group.getEntities().size() > count && group.getDensity() > mMaxDensity;
 	}
 	
 	public boolean allowWorld(World world)
