@@ -3,6 +3,7 @@ package au.com.addstar.entitycap;
 import java.util.HashSet;
 import java.util.List;
 
+import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.Entity;
@@ -10,15 +11,21 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Tameable;
 
+import au.com.addstar.entitycap.group.EntityGroup;
+
 public class GroupSettings
 {
 	private HashSet<EntityType> mActiveTypes;
 	private int mMaxAmount;
-	private int mRadius;
+	private double mMaxDensity;
+	
 	private boolean mAutoRun;
 	private String mName;
 	private boolean mDisableKill;
 	private int mWarnThreshold;
+	
+	private HashSet<String> mWorlds;
+	private boolean mWorldsBlacklist;
 	
 	public GroupSettings()
 	{
@@ -44,9 +51,28 @@ public class GroupSettings
 		return true;
 	}
 	
-	public int getRadius()
+	public boolean matches(EntityGroup group)
 	{
-		return mRadius;
+		return group.getEntities().size() >= mMaxAmount && group.getDensity() >= mMaxDensity;
+	}
+	
+	public boolean matchesWarn(EntityGroup group)
+	{
+		int count = (mWarnThreshold == 0 ? mMaxAmount : mWarnThreshold);
+		return group.getEntities().size() >= count && group.getDensity() >= mMaxDensity;
+	}
+	
+	public boolean allowWorld(World world)
+	{
+		if(mWorldsBlacklist)
+			return !mWorlds.contains(world.getName().toLowerCase());
+		else
+			return mWorlds.contains(world.getName().toLowerCase());
+	}
+	
+	public double getMaxDensity()
+	{
+		return mMaxDensity;
 	}
 	
 	public int getMaxEntities()
@@ -74,10 +100,22 @@ public class GroupSettings
 		mActiveTypes.clear();
 		mName = section.getName();
 		mMaxAmount = section.getInt("max_entities");
-		mRadius = section.getInt("radius");
+		mMaxDensity = section.getDouble("max_density", 0);
 		mAutoRun = section.getBoolean("autorun");
 		mWarnThreshold = section.getInt("warn_threshold", 0);
 		mDisableKill = section.getBoolean("check_only", false);
+		
+		if(section.isList("worlds"))
+		{
+			List<String> worlds = section.getStringList("worlds");
+			mWorlds = new HashSet<String>(worlds.size());
+			for(String world : worlds)
+				mWorlds.add(world.toLowerCase());
+		}
+		else
+			mWorlds = new HashSet<String>();
+		
+		mWorldsBlacklist = section.getBoolean("worlds_is_blacklist", true);
 		
 		List<String> types = section.getStringList("mob_types");
 		if(types == null)

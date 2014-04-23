@@ -6,10 +6,19 @@ output_to_console: false
 # Default is 1200 ticks, or 1 minute
 ticks_between_run: 1200
 
+worlds: []
+
+# When true, worlds represents all the worlds this cannot run in at a global level
+worlds_is_blacklist: true
+
 SpawnerFarms:
   max_entities: 50
-  radius: 17 
+  max_density: 0.2
   autorun: true
+# check_only: false
+# warn_threshold: 0
+# worlds: []
+# worlds_is_blacklist: true
   mob_types:
    - ZOMBIE
    - SPIDER
