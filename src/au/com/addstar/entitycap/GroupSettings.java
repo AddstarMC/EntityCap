@@ -10,7 +10,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Tameable;
-
 import au.com.addstar.entitycap.group.EntityGroup;
 
 public class GroupSettings
@@ -18,6 +17,7 @@ public class GroupSettings
 	private HashSet<EntityType> mActiveTypes;
 	private int mMaxAmount;
 	private double mMaxDensity;
+	private int mMinTicksLived; 
 	
 	private boolean mAutoRun;
 	private String mName;
@@ -42,11 +42,23 @@ public class GroupSettings
 		if(!mActiveTypes.contains(e.getType()))
 			return false;
 		
+		if(e.getTicksLived() < mMinTicksLived)
+			return false;
+		
 		if(e instanceof Tameable)
-			return !((Tameable)e).isTamed();
+		{
+			if(((Tameable)e).isTamed())
+				return false;
+		}
 		
 		if(e instanceof LivingEntity)
-			return ((LivingEntity) e).getCustomName() == null;
+		{
+			if(((LivingEntity) e).getCustomName() != null)
+				return false;
+		}
+		
+		if(e.getPassenger() != null)
+			return false;
 		
 		return true;
 	}
@@ -80,6 +92,11 @@ public class GroupSettings
 		return mMaxAmount;
 	}
 	
+	public int getMinTicksLived()
+	{
+		return mMinTicksLived;
+	}
+	
 	public boolean shouldAutorun()
 	{
 		return mAutoRun;
@@ -101,6 +118,7 @@ public class GroupSettings
 		mName = section.getName();
 		mMaxAmount = section.getInt("max_entities");
 		mMaxDensity = section.getDouble("max_density", 0);
+		mMinTicksLived = section.getInt("min_ticks_lived", 0);
 		mAutoRun = section.getBoolean("autorun");
 		mWarnThreshold = section.getInt("warn_threshold", 0);
 		mDisableKill = section.getBoolean("check_only", false);

@@ -11,17 +11,22 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import au.com.addstar.entitycap.group.EntityConcentrationMap;
 
-public class EntityCapPlugin extends JavaPlugin
+public class EntityCapPlugin extends JavaPlugin implements Listener
 {
 	private LinkedList<GroupSettings> mAutoGroups = new LinkedList<GroupSettings>();
 	private LinkedList<GroupSettings> mAllGroups = new LinkedList<GroupSettings>();
 	
 	private HashSet<String> mWorlds;
 	private boolean mWorldsBlacklist;
+	private boolean mResetTicksLived;
 	
 	private boolean mNoisy = true;
 	private int mInterval;
@@ -46,6 +51,7 @@ public class EntityCapPlugin extends JavaPlugin
 		getCommand("entitycap").setExecutor(new CapCommand(this));
 		
 		Bukkit.getScheduler().runTaskTimer(this, new EntityKillerTask(this), mInterval, mInterval);
+		Bukkit.getPluginManager().registerEvents(this, this);
 	}
 	
 	private void loadConfig() throws InvalidConfigurationException
@@ -86,6 +92,8 @@ public class EntityCapPlugin extends JavaPlugin
 			mWorlds = new HashSet<String>();
 		
 		mWorldsBlacklist = config.getBoolean("worlds_is_blacklist", true);
+		
+		mResetTicksLived = config.getBoolean("vehicle_reset_ticks_lived", false);
 	}
 	
 	public Collection<GroupSettings> getGroups(boolean includeManual)
@@ -145,5 +153,12 @@ public class EntityCapPlugin extends JavaPlugin
 		CheckReport report = new CheckReport(sender);
 		for(GroupSettings settings : getGroups(includeManual))
 			checkGroup(settings, report);
+	}
+	
+	@EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
+	private void onVehicleLeave(VehicleExitEvent event)
+	{
+		if(mResetTicksLived)
+			event.getVehicle().setTicksLived(0);
 	}
 }

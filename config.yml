@@ -6,6 +6,10 @@ output_to_console: false
 # Default is 1200 ticks, or 1 minute
 ticks_between_run: 1200
 
+# When true, exiting a vehicle will reset its ticks lived.
+# Useful to remove vehicles only when they have been empty for a while
+vehicle_reset_ticks_lived: false
+
 worlds: []
 
 # When true, worlds represents all the worlds this cannot run in at a global level
@@ -14,6 +18,7 @@ worlds_is_blacklist: true
 SpawnerFarms:
   max_entities: 50
   max_density: 0.2
+# min_ticks_lived: 0
   autorun: true
 # check_only: false
 # warn_threshold: 0
