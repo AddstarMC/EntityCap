@@ -1,5 +1,6 @@
 package au.com.addstar.entitycap.group;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,6 +22,14 @@ import com.google.common.collect.HashMultimap;
 
 public class EntityConcentrationMap
 {
+	private static ArrayDeque<BuildThread> mQueue = new ArrayDeque<BuildThread>();
+	private static boolean mIsRunning = false;
+	
+	public static boolean isRunning()
+	{
+		return mIsRunning;
+	}
+	
 	private final HashSet<EntityGroup> mAllGroups;
 	private final HashMultimap<ChunkCoord, EntityGroup> mChunkGroups;
 	private final Plugin mPlugin;
@@ -260,8 +269,15 @@ public class EntityConcentrationMap
 		
 		mIsBuilding = true;
 		mCallback = callback;
-		BuildThread thread = new BuildThread();
-		thread.start();
+		
+		synchronized(mQueue)
+		{
+			BuildThread thread = new BuildThread();
+			if(mQueue.isEmpty())
+				thread.start();
+			else
+				mQueue.add(thread);
+		}
 	}
 	
 	public void reset()
@@ -284,32 +300,52 @@ public class EntityConcentrationMap
 		@Override
 		public void run()
 		{
-			mAllGroups.clear();
-			mChunkGroups.clear();
-			
-			for(World world : mBuildBuffer.keySet())
-				processWorld(world);
-			
-			for(EntityGroup group : mAllGroups)
+			mIsRunning = true;
+			try
 			{
-				group.stripOutliers();
-				group.adjustBoundingSphere();
-			}
-			
-			orderGroups();
-			
-			mBuildBuffer.clear();
-			mChunkGroups.clear();
-			mAllGroups.clear();
-			
-			Bukkit.getScheduler().runTask(mPlugin, new Runnable()
-			{
-				@Override
-				public void run()
+				mAllGroups.clear();
+				mChunkGroups.clear();
+				
+				for(World world : mBuildBuffer.keySet())
+					processWorld(world);
+				
+				for(EntityGroup group : mAllGroups)
 				{
-					onBuildComplete();
+					group.stripOutliers();
+					group.adjustBoundingSphere();
 				}
-			});
+				
+				orderGroups();
+				
+				mBuildBuffer.clear();
+				mChunkGroups.clear();
+				mAllGroups.clear();
+				
+				Bukkit.getScheduler().runTask(mPlugin, new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						onBuildComplete();
+					}
+				});
+			}
+			catch(Throwable e)
+			{
+				e.printStackTrace();
+			}
+			finally
+			{
+				mIsRunning = false;
+				synchronized(mQueue)
+				{
+					if(!mQueue.isEmpty())
+					{
+						BuildThread thread = mQueue.poll();
+						thread.start();
+					}
+				}
+			}
 		}
 	}
 }

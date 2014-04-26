@@ -1,5 +1,7 @@
 package au.com.addstar.entitycap;
 
+import au.com.addstar.entitycap.group.EntityConcentrationMap;
+
 public class EntityKillerTask implements Runnable
 {
 	private EntityCapPlugin mPlugin;
@@ -12,7 +14,8 @@ public class EntityKillerTask implements Runnable
 	@Override
 	public void run()
 	{
-		mPlugin.runGroups(false);
+		if(!EntityConcentrationMap.isRunning())
+			mPlugin.runGroups(false);
 	}
 
 }
