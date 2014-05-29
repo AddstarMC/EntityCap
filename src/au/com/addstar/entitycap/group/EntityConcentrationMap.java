@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.Validate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -24,11 +26,17 @@ public class EntityConcentrationMap
 {
 	private static ArrayDeque<BuildThread> mQueue = new ArrayDeque<BuildThread>();
 	private static boolean mIsRunning = false;
+	private static final Object mSync = new Object();
 	
 	public static boolean isRunning()
 	{
-		return mIsRunning;
+		synchronized(mSync)
+		{
+			return mIsRunning;
+		}
 	}
+	
+	private static Logger mLogger = LogManager.getLogger();
 	
 	private final HashSet<EntityGroup> mAllGroups;
 	private final HashMultimap<ChunkCoord, EntityGroup> mChunkGroups;
@@ -207,6 +215,7 @@ public class EntityConcentrationMap
 	// WARNING: BuildThread only
 	private void processWorld(World world)
 	{
+		mLogger.debug("Processing world " + world.getName());
 		Location temp = new Location(null, 0, 0, 0);
 		for(Entity entity : mBuildBuffer.get(world))
 		{
@@ -270,13 +279,24 @@ public class EntityConcentrationMap
 		mIsBuilding = true;
 		mCallback = callback;
 		
-		synchronized(mQueue)
+		mLogger.debug("Issuing build request for " + this);
+		
+		synchronized(mSync)
 		{
-			BuildThread thread = new BuildThread();
-			if(mQueue.isEmpty())
-				thread.start();
-			else
-				mQueue.add(thread);
+			synchronized(mQueue)
+			{
+				BuildThread thread = new BuildThread();
+				if(mIsRunning)
+				{
+					mLogger.debug("Queueing new build thread.");
+					mQueue.add(thread);
+				}
+				else
+				{
+					mIsRunning = true;
+					thread.start();
+				}
+			}
 		}
 	}
 	
@@ -297,25 +317,34 @@ public class EntityConcentrationMap
 	
 	private class BuildThread extends Thread
 	{
+		public BuildThread()
+		{
+			setName("EntityCap-BuildThread-" + getId());
+		}
 		@Override
 		public void run()
 		{
-			mIsRunning = true;
 			try
 			{
 				mAllGroups.clear();
 				mChunkGroups.clear();
 				
+				mLogger.debug("Starting build. Starting world processing");
 				for(World world : mBuildBuffer.keySet())
 					processWorld(world);
 				
+				mLogger.debug("Completed world processing. Starting outlier stripping and bounds adjusting.");
 				for(EntityGroup group : mAllGroups)
 				{
 					group.stripOutliers();
 					group.adjustBoundingSphere();
 				}
 				
+				mLogger.debug("Completed outlier stripper and bounds adjusting. Starting ordering");
+				
 				orderGroups();
+				
+				mLogger.debug("Completed ordering. Build complete.");
 				
 				mBuildBuffer.clear();
 				mChunkGroups.clear();
@@ -336,13 +365,18 @@ public class EntityConcentrationMap
 			}
 			finally
 			{
-				mIsRunning = false;
-				synchronized(mQueue)
+				synchronized(mSync)
 				{
-					if(!mQueue.isEmpty())
+					synchronized(mQueue)
 					{
-						BuildThread thread = mQueue.poll();
-						thread.start();
+						if(!mQueue.isEmpty())
+						{
+							mLogger.debug("Starting waiting build thread.");
+							BuildThread thread = mQueue.poll();
+							thread.start();
+						}
+						else
+							mIsRunning = false;
 					}
 				}
 			}
