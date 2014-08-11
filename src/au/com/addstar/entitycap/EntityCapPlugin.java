@@ -1,5 +1,6 @@
 package au.com.addstar.entitycap;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -50,8 +51,16 @@ public class EntityCapPlugin extends JavaPlugin implements Listener
 		
 		getCommand("entitycap").setExecutor(new CapCommand(this));
 		
+		SpecialLog.initialize(new File(getDataFolder(), "removals.log"));
+		
 		Bukkit.getScheduler().runTaskTimer(this, new EntityKillerTask(this), mInterval, mInterval);
 		Bukkit.getPluginManager().registerEvents(this, this);
+	}
+	
+	@Override
+	public void onDisable()
+	{
+		SpecialLog.shutdown();
 	}
 	
 	private void loadConfig() throws InvalidConfigurationException

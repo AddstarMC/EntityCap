@@ -2,11 +2,13 @@ package au.com.addstar.entitycap;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.logging.Logger;
 
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Villager;
@@ -55,6 +57,7 @@ public class EntityRemover implements Callback<EntityConcentrationMap>
 	public void onCompleted( EntityConcentrationMap data )
 	{
 		int total = 0;
+		ArrayList<String> logLines = new ArrayList<String>();
 		for(EntityGroup group : data.getAllGroups())
 		{
 			if(!mSettings.matches(group))
@@ -74,6 +77,8 @@ public class EntityRemover implements Callback<EntityConcentrationMap>
 			int requiredCount = Math.max(mSettings.getMaxEntities(), (int)(mSettings.getMaxDensity() * (Math.PI * group.getRadiusSq())));
 			int toRemove = group.getEntities().size() - requiredCount;
 			
+			int actual = 0;
+			HashSet<EntityType> types = new HashSet<EntityType>();
 			for(int i = 0; i < bins.size(); ++i)
 			{
 				LinkedList<Entity> bin = bins.get(i);
@@ -85,18 +90,29 @@ public class EntityRemover implements Callback<EntityConcentrationMap>
 					Entity ent = bin.removeFirst();
 					if(ent.isValid())
 					{
+						types.add(ent.getType());
 						ent.remove();
 						++total;
+						++actual;
 					}
 					else
 						++rc;
 				}
 			}
+			
+			logLines.add(String.format("* Removing %d from %s radius %f", actual, String.format("%s,%d,%d,%d", group.getLocation().getWorld().getName(), group.getLocation().getBlockX(), group.getLocation().getBlockY(), group.getLocation().getBlockZ()), group.getRadius()));
+			logLines.add("  - Types: " + types);
 		}
 		
 		if(total > 0 && mPrintResults)
 			mLog.info(String.format("Removed %d entities from %s group", total, mSettings.getName()));
 		else if(total == 0 && mIncludeEmpty)
 			mLog.info(String.format("No entities were removed from %s", mSettings.getName()));
+		
+		if (total > 0)
+		{
+			SpecialLog.log(String.format("Removed %d entities from %s group:", total, mSettings.getName()));
+			SpecialLog.log(logLines);
+		}
 	}
 }
