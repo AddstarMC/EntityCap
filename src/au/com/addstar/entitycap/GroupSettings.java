@@ -8,13 +8,11 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Tameable;
 import au.com.addstar.entitycap.group.EntityGroup;
 
 public class GroupSettings
 {
-	private HashSet<EntityType> mActiveTypes;
+	private EntityFilter mFilter;
 	private int mMaxAmount;
 	private double mMaxDensity;
 	private int mMinTicksLived; 
@@ -27,9 +25,11 @@ public class GroupSettings
 	private HashSet<String> mWorlds;
 	private boolean mWorldsBlacklist;
 	
+	// Chunk only settings
+	private boolean mIsChunkOnly;
+	
 	public GroupSettings()
 	{
-		mActiveTypes = new HashSet<EntityType>();
 	}
 	
 	public String getName()
@@ -39,25 +39,10 @@ public class GroupSettings
 	
 	public boolean matches(Entity e)
 	{
-		if(!mActiveTypes.contains(e.getType()))
+		if (!mFilter.matches(e))
 			return false;
 		
 		if(e.getTicksLived() < mMinTicksLived)
-			return false;
-		
-		if(e instanceof Tameable)
-		{
-			if(((Tameable)e).isTamed())
-				return false;
-		}
-		
-		if(e instanceof LivingEntity)
-		{
-			if(((LivingEntity) e).getCustomName() != null)
-				return false;
-		}
-		
-		if(e.getPassenger() != null)
 			return false;
 		
 		return true;
@@ -112,9 +97,13 @@ public class GroupSettings
 		return mWarnThreshold;
 	}
 	
+	public boolean isChunkOnly()
+	{
+		return mIsChunkOnly;
+	}
+	
 	public void load(ConfigurationSection section) throws InvalidConfigurationException
 	{
-		mActiveTypes.clear();
 		mName = section.getName();
 		mMaxAmount = section.getInt("max_entities");
 		mMaxDensity = section.getDouble("max_density", 0);
@@ -122,6 +111,9 @@ public class GroupSettings
 		mAutoRun = section.getBoolean("autorun");
 		mWarnThreshold = section.getInt("warn_threshold", 0);
 		mDisableKill = section.getBoolean("check_only", false);
+		
+		// Chunk specific
+		mIsChunkOnly = section.getBoolean("chunk_limit", false);
 		
 		if(section.isList("worlds"))
 		{
@@ -135,15 +127,22 @@ public class GroupSettings
 		
 		mWorldsBlacklist = section.getBoolean("worlds_is_blacklist", true);
 		
-		List<String> types = section.getStringList("mob_types");
-		if(types == null)
-			throw new InvalidConfigurationException("mob_types is not a list");
+		if (section.isConfigurationSection("filter"))
+			mFilter = EntityFilter.from(section.getConfigurationSection("filter"));
+		else
+			mFilter = new EntityFilter();
 		
-		for(String typeName : types)
+		// Load deprecated list
+		if (section.isList("mob_types"))
 		{
-			EntityType type = EntityType.valueOf(typeName);
-			if(type != null && type.isAlive())
-				mActiveTypes.add(type);
+			List<String> types = section.getStringList("mob_types");
+			
+			for(String typeName : types)
+			{
+				EntityType type = EntityType.valueOf(typeName);
+				if(type != null && type.isAlive())
+					mFilter.addType(type);
+			}
 		}
 	}
 }

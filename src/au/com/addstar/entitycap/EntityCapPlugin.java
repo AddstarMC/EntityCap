@@ -8,13 +8,16 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -24,6 +27,8 @@ public class EntityCapPlugin extends JavaPlugin implements Listener
 {
 	private LinkedList<GroupSettings> mAutoGroups = new LinkedList<GroupSettings>();
 	private LinkedList<GroupSettings> mAllGroups = new LinkedList<GroupSettings>();
+	
+	private LinkedList<GroupSettings> mChunkGroups = new LinkedList<GroupSettings>();
 	
 	private HashSet<String> mWorlds;
 	private boolean mWorldsBlacklist;
@@ -83,9 +88,14 @@ public class EntityCapPlugin extends JavaPlugin implements Listener
 			GroupSettings group = new GroupSettings();
 			group.load(config.getConfigurationSection(key));
 			
-			mAllGroups.add(group);
-			if(group.shouldAutorun())
-				mAutoGroups.add(group);
+			if (group.isChunkOnly())
+				mChunkGroups.add(group);
+			else
+			{
+				mAllGroups.add(group);
+				if(group.shouldAutorun())
+					mAutoGroups.add(group);
+			}
 			
 			getLogger().info(String.format("Loaded group %s: AutoRun: %s", group.getName(), group.shouldAutorun()));
 		}
@@ -169,5 +179,28 @@ public class EntityCapPlugin extends JavaPlugin implements Listener
 	{
 		if(mResetTicksLived)
 			event.getVehicle().setTicksLived(0);
+	}
+	
+	@EventHandler(priority=EventPriority.LOW, ignoreCancelled=true)
+	private void onEntitySpawn(EntitySpawnEvent event)
+	{
+		// Check per-chunk limits
+		for (GroupSettings settings : mChunkGroups)
+		{
+			if (!settings.matches(event.getEntity()))
+				continue;
+			
+			// Prevent spawning if limit is exceeded
+			Chunk chunk = event.getLocation().getChunk();
+			int count = 0;
+			for (Entity ent : chunk.getEntities())
+			{
+				if (settings.matches(ent))
+					++count;
+			}
+			
+			if (count + 1 > settings.getMaxEntities())
+				event.setCancelled(true);
+		}
 	}
 }

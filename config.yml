@@ -24,10 +24,21 @@ SpawnerFarms:
 # warn_threshold: 0
 # worlds: []
 # worlds_is_blacklist: true
-  mob_types:
-   - ZOMBIE
-   - SPIDER
-   - CAVE_SPIDER
-   - SKELETON
-   - BLAZE
-   - SILVERFISH 
+  filter:
+   ZOMBIE: include
+   SPIDER: include
+   CAVE_SPIDER: include
+   SKELETON: include
+   BLAZE: include
+   SILVERFISH : include
+# This is an example per-chunk limit
+# This is just another group and can be named anything
+# the important thing for this group is 'chunk_limit'
+ChunkLimit:
+  max_entities: 40
+  # Sets this group to be bound to a chunk. max_density is ignored when this is set
+  chunk_limit: true
+  # The new way of defining allowed / denied entities, replacing 'mob_types'
+  filter:
+    all: include
+    specials: ignore
