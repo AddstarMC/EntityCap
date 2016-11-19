@@ -41,15 +41,10 @@ public class EntityRemover implements Callback<EntityConcentrationMap>
 		
 		if(ent instanceof Sheep)
 			base += ((Sheep)ent).getColor().ordinal();
-		else if(ent instanceof Skeleton)
-			base += ((Skeleton)ent).getSkeletonType().ordinal();
 		else if(ent instanceof Villager)
 			base += ((Villager)ent).getProfession().ordinal();
 		else if(ent instanceof Creeper)
 			base += (((Creeper)ent).isPowered() ? 1 : 0);
-		else if(ent instanceof Zombie)
-			base += (((Zombie)ent).isVillager() ? 1 : 0);
-		
 		return base;
 	}
 	

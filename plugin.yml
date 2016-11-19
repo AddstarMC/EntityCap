@@ -1,5 +1,5 @@
 name: EntityCap
-version: ${pom.version}
+version: ${plugin.version}
 
 main: au.com.addstar.entitycap.EntityCapPlugin
 
