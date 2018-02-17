@@ -37,15 +37,9 @@ public class GroupSettings
 		return mName;
 	}
 	
-	public boolean matches(Entity e)
-	{
-		if (!mFilter.matches(e))
-			return false;
-		
-		if(e.getTicksLived() < mMinTicksLived)
-			return false;
-		
-		return true;
+	public boolean matches(Entity e) {
+		return mFilter.matches(e) && e.getTicksLived() >= mMinTicksLived;
+
 	}
 	
 	public boolean matches(EntityGroup group)
@@ -118,12 +112,12 @@ public class GroupSettings
 		if(section.isList("worlds"))
 		{
 			List<String> worlds = section.getStringList("worlds");
-			mWorlds = new HashSet<String>(worlds.size());
+			mWorlds = new HashSet<>(worlds.size());
 			for(String world : worlds)
 				mWorlds.add(world.toLowerCase());
 		}
 		else
-			mWorlds = new HashSet<String>();
+			mWorlds = new HashSet<>();
 		
 		mWorldsBlacklist = section.getBoolean("worlds_is_blacklist", true);
 		

@@ -15,9 +15,9 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
-public class CapCommand implements CommandExecutor 
+class CapCommand implements CommandExecutor
 {
-	private EntityCapPlugin mPlugin;
+	private final EntityCapPlugin mPlugin;
 	
 	public CapCommand(EntityCapPlugin plugin)
 	{
@@ -121,24 +121,20 @@ public class CapCommand implements CommandExecutor
 	private void handleCheck( CommandSender sender, String label, String[] args)
 	{
 		Collection<GroupSettings> allGroups = mPlugin.getGroups(true);
-		LinkedList<GroupSettings> matching = new LinkedList<GroupSettings>();
-		
-		for(int i = 0; i < args.length; ++i)
-		{
+		LinkedList<GroupSettings> matching = new LinkedList<>();
+
+		for (String arg : args) {
 			boolean found = false;
-			for(GroupSettings group : allGroups)
-			{
-				if(group.getName().equalsIgnoreCase(args[i]))
-				{
+			for (GroupSettings group : allGroups) {
+				if (group.getName().equalsIgnoreCase(arg)) {
 					found = true;
 					matching.add(group);
 					break;
 				}
 			}
-			
-			if(!found)
-			{
-				sender.sendMessage(ChatColor.RED + "Unknown rule " + args[i]);
+
+			if (!found) {
+				sender.sendMessage(ChatColor.RED + "Unknown rule " + arg);
 				return;
 			}
 		}

@@ -6,8 +6,8 @@ import au.com.addstar.entitycap.group.EntityGroup;
 
 public class EntityChecker implements Callback<EntityConcentrationMap>
 {
-	private GroupSettings mSettings;
-	private CheckReport mReporter;
+	private final GroupSettings mSettings;
+	private final CheckReport mReporter;
 	
 	public EntityChecker(GroupSettings settings, CheckReport reporter)
 	{

@@ -7,7 +7,7 @@ import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.util.Collection;
 
-public class SpecialLog
+class SpecialLog
 {
 	public static void log(String message)
 	{

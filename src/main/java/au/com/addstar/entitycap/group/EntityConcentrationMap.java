@@ -24,7 +24,7 @@ import com.google.common.collect.HashMultimap;
 
 public class EntityConcentrationMap
 {
-	private static ArrayDeque<BuildThread> mQueue = new ArrayDeque<BuildThread>();
+	private static final ArrayDeque<BuildThread> mQueue = new ArrayDeque<>();
 	private static boolean mIsRunning = false;
 	private static final Object mSync = new Object();
 	
@@ -36,13 +36,13 @@ public class EntityConcentrationMap
 		}
 	}
 	
-	private static Logger mLogger = LogManager.getLogger();
+	private static final Logger mLogger = LogManager.getLogger();
 	
 	private final HashSet<EntityGroup> mAllGroups;
 	private final HashMultimap<ChunkCoord, EntityGroup> mChunkGroups;
 	private final Plugin mPlugin;
 	
-	private HashMap<World, List<Entity>> mBuildBuffer;
+	private final HashMap<World, List<Entity>> mBuildBuffer;
 	private boolean mIsBuilding;
 	private Callback<EntityConcentrationMap> mCallback;
 	
@@ -52,9 +52,9 @@ public class EntityConcentrationMap
 	
 	public EntityConcentrationMap(GroupSettings settings, Plugin plugin)
 	{
-		mAllGroups = new HashSet<EntityGroup>();
+		mAllGroups = new HashSet<>();
 		mChunkGroups = HashMultimap.create();
-		mBuildBuffer = new HashMap<World, List<Entity>>();
+		mBuildBuffer = new HashMap<>();
 		mSettings = settings;
 		
 		mPlugin = plugin;
@@ -74,7 +74,7 @@ public class EntityConcentrationMap
 			if(groups != null && !groups.isEmpty())
 			{
 				if(allGroups == null)
-					allGroups = new HashSet<EntityGroup>(groups);
+					allGroups = new HashSet<>(groups);
 				else
 					allGroups.addAll(groups);
 			}
@@ -234,7 +234,7 @@ public class EntityConcentrationMap
 	// WARNING: BuildThread only
 	private void orderGroups()
 	{
-		mOrdered = new ArrayList<EntityGroup>(mAllGroups.size());
+		mOrdered = new ArrayList<>(mAllGroups.size());
 		
 		for(EntityGroup group : mAllGroups)
 		{
@@ -317,7 +317,7 @@ public class EntityConcentrationMap
 	
 	private class BuildThread extends Thread
 	{
-		public BuildThread()
+		BuildThread()
 		{
 			setName("EntityCap-BuildThread-" + getId());
 		}
@@ -350,14 +350,7 @@ public class EntityConcentrationMap
 				mChunkGroups.clear();
 				mAllGroups.clear();
 				
-				Bukkit.getScheduler().runTask(mPlugin, new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						onBuildComplete();
-					}
-				});
+				Bukkit.getScheduler().runTask(mPlugin, EntityConcentrationMap.this::onBuildComplete);
 			}
 			catch(Throwable e)
 			{

@@ -8,16 +8,16 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 
-public class CheckReport
+class CheckReport
 {
-	private HashMap<GroupSettings, StringBuilder> mReport;
-	private HashSet<GroupSettings> mWaiting;
-	private CommandSender mSender;
+	private final HashMap<GroupSettings, StringBuilder> mReport;
+	private final HashSet<GroupSettings> mWaiting;
+	private final CommandSender mSender;
 	
 	public CheckReport(CommandSender sender)
 	{
-		mReport = new HashMap<GroupSettings, StringBuilder>();
-		mWaiting = new HashSet<GroupSettings>();
+		mReport = new HashMap<>();
+		mWaiting = new HashSet<>();
 		mSender = sender;
 	}
 	
@@ -28,14 +28,9 @@ public class CheckReport
 	
 	public void reportGroup(GroupSettings group, int count, Location location)
 	{
-		StringBuilder builder = mReport.get(group);
-		if(builder == null)
-		{
-			builder = new StringBuilder();
-			mReport.put(group, builder);
-		}
-		
-		if(builder.length() != 0)
+        StringBuilder builder = mReport.computeIfAbsent(group, k -> new StringBuilder());
+
+        if(builder.length() != 0)
 			builder.append(", ");
 		
 		if(count >= group.getMaxEntities())
@@ -51,7 +46,7 @@ public class CheckReport
 			output();
 	}
 	
-	public void output()
+	private void output()
 	{
 		mSender.sendMessage(ChatColor.GOLD + "Rules being exceeded currently: ");
 		

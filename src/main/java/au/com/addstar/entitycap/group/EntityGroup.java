@@ -11,17 +11,17 @@ import org.bukkit.util.Vector;
 
 public class EntityGroup implements Comparable<EntityGroup>
 {
-	public static double defaultRadius = 8;
+	private static final double defaultRadius = 8;
 	private static int mNextId = 0;
 	
-	private int mId;
+	private final int mId;
 	
 	private double mRadius = 0;
 	private Location mLocation;
 	
 	private double mMeanDistance;
 	
-	private ArrayList<Entity> mEntities;
+	private final ArrayList<Entity> mEntities;
 	
 	public EntityGroup(Location location)
 	{
@@ -29,7 +29,7 @@ public class EntityGroup implements Comparable<EntityGroup>
 		
 		mLocation = location;
 		mRadius = defaultRadius * defaultRadius;
-		mEntities = new ArrayList<Entity>();
+		mEntities = new ArrayList<>();
 	}
 	
 	public void addEntity(Entity entity)
@@ -52,20 +52,14 @@ public class EntityGroup implements Comparable<EntityGroup>
 		return mRadius;
 	}
 	
-	public boolean isInGroup(Location location)
-	{
-		if(mLocation.getWorld() != location.getWorld())
-			return false;
-		
-		return (mLocation.distanceSquared(location) <= mRadius);
+	public boolean isInGroup(Location location) {
+		return mLocation.getWorld() == location.getWorld() && (mLocation.distanceSquared(location) <= mRadius);
+
 	}
 	
-	public boolean isTooClose(Location location)
-	{
-		if(mLocation.getWorld() != location.getWorld())
-			return false;
-		
-		return (mLocation.distanceSquared(location) <= (mRadius + (defaultRadius*defaultRadius)));
+	public boolean isTooClose(Location location) {
+		return mLocation.getWorld() == location.getWorld() && (mLocation.distanceSquared(location) <= (mRadius + (defaultRadius * defaultRadius)));
+
 	}
 	
 	public void mergeWith(EntityGroup other)
@@ -88,20 +82,16 @@ public class EntityGroup implements Comparable<EntityGroup>
 		Validate.isTrue(location.getWorld() == mLocation.getWorld());
 
 		// Shift this groups locations by the radius of the other group, towards the other group
-		double radiusOther = defaultRadius;
-		Vector vec = location.toVector().subtract(mLocation.toVector()).normalize().multiply(radiusOther);
+		Vector vec = location.toVector().subtract(mLocation.toVector()).normalize().multiply(defaultRadius);
 		mLocation.add(vec);
 		
 		// Now expand my radius so i still cover the area I had before
 		mRadius += defaultRadius * defaultRadius;
 	}
 	
-	public boolean shouldMergeWith(EntityGroup other)
-	{
-		if(mLocation.getWorld() != other.mLocation.getWorld())
-			return false;
-		
-		return (mLocation.distanceSquared(other.mLocation) < (mRadius + other.mRadius));
+	public boolean shouldMergeWith(EntityGroup other) {
+		return mLocation.getWorld() == other.mLocation.getWorld() && (mLocation.distanceSquared(other.mLocation) < (mRadius + other.mRadius));
+
 	}
 	
 	private double getSmallestDistanceToNeighbour(Entity entity, Location temp)
@@ -131,7 +121,7 @@ public class EntityGroup implements Comparable<EntityGroup>
 		double mean = 0;
 		Location temp = new Location(null, 0, 0, 0);
 		
-		ArrayList<Double> dists = new ArrayList<Double>(mEntities.size());
+		ArrayList<Double> dists = new ArrayList<>(mEntities.size());
 		
 		for(Entity ent : mEntities)
 		{
@@ -264,7 +254,7 @@ public class EntityGroup implements Comparable<EntityGroup>
 	@Override
 	public int compareTo( EntityGroup o )
 	{
-		return Integer.valueOf(mEntities.size()).compareTo(o.mEntities.size()) * -1; // Higher first
+		return Integer.compare(mEntities.size(), o.mEntities.size()) * -1; // Higher first
 	}
 	
 	@Override

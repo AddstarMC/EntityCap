@@ -23,12 +23,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import au.com.addstar.entitycap.group.EntityConcentrationMap;
 
-public class EntityCapPlugin extends JavaPlugin implements Listener
+class EntityCapPlugin extends JavaPlugin implements Listener
 {
-	private LinkedList<GroupSettings> mAutoGroups = new LinkedList<GroupSettings>();
-	private LinkedList<GroupSettings> mAllGroups = new LinkedList<GroupSettings>();
+	private final LinkedList<GroupSettings> mAutoGroups = new LinkedList<>();
+	private final LinkedList<GroupSettings> mAllGroups = new LinkedList<>();
 	
-	private LinkedList<GroupSettings> mChunkGroups = new LinkedList<GroupSettings>();
+	private final LinkedList<GroupSettings> mChunkGroups = new LinkedList<>();
 	
 	private HashSet<String> mWorlds;
 	private boolean mWorldsBlacklist;
@@ -103,12 +103,12 @@ public class EntityCapPlugin extends JavaPlugin implements Listener
 		if(config.isList("worlds"))
 		{
 			List<String> worlds = config.getStringList("worlds");
-			mWorlds = new HashSet<String>(worlds.size());
+			mWorlds = new HashSet<>(worlds.size());
 			for(String world : worlds)
 				mWorlds.add(world.toLowerCase());
 		}
 		else
-			mWorlds = new HashSet<String>();
+			mWorlds = new HashSet<>();
 		
 		mWorldsBlacklist = config.getBoolean("worlds_is_blacklist", true);
 		
@@ -123,7 +123,7 @@ public class EntityCapPlugin extends JavaPlugin implements Listener
 			return Collections.unmodifiableList(mAutoGroups);
 	}
 	
-	public boolean allowWorldGlobal(World world)
+	private boolean allowWorldGlobal(World world)
 	{
 		if(mWorldsBlacklist)
 			return !mWorlds.contains(world.getName().toLowerCase());
@@ -131,7 +131,7 @@ public class EntityCapPlugin extends JavaPlugin implements Listener
 			return mWorlds.contains(world.getName().toLowerCase());
 	}
 	
-	public void runGroup(GroupSettings settings, boolean printResult, boolean printEmpty)
+	private void runGroup(GroupSettings settings, boolean printResult, boolean printEmpty)
 	{
 		if(settings.warnOnly())
 			return;

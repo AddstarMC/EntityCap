@@ -33,11 +33,11 @@ import org.bukkit.inventory.InventoryHolder;
 
 public class EntityFilter
 {
-	private List<FilterAction> actions;
+	private final List<FilterAction> actions;
 	
 	public EntityFilter()
 	{
-		actions = new ArrayList<FilterAction>();
+		actions = new ArrayList<>();
 	}
 	
 	public static EntityFilter from(ConfigurationSection section) throws InvalidConfigurationException
@@ -101,51 +101,44 @@ public class EntityFilter
 		actions.add(new FilterAction(type, true));
 	}
 	
-	public boolean matches(Entity e)
-	{
-		// Dont match players or NPCs
-		if (e instanceof HumanEntity)
-			return false;
-		
-		// Dont match 'pets'
-		if(e instanceof Tameable)
-		{
-			if(((Tameable)e).isTamed())
-				return false;
-		}
-		
-		if(e instanceof LivingEntity)
-		{
-			if(((LivingEntity)e).getCustomName() != null)
-				return false;
-		}
-		
-		// Dont match things being ridden
-		if(e.getPassenger() != null)
-			return false;
-		
-		// Get the highest level match
-		int bestScore = -1;
-		FilterAction best = null;
-		for (FilterAction action : actions)
-		{
-			// Dont bother checking when it wont help
-			if (action.getPriority() <= bestScore)
-				continue;
-			
-			if (action.matches(e))
-			{
-				best = action;
-				bestScore = action.getPriority();
-			}
-		}
-		
-		// No matching filter action. We will assume it is not part of the set to be on the safe side
-		if (best == null)
-			return false;
-		
-		return best.include;
-	}
+	public boolean matches(Entity e) {
+        // Dont match players or NPCs
+        if (e instanceof HumanEntity)
+            return false;
+
+        // Dont match 'pets'
+        if (e instanceof Tameable) {
+            if (((Tameable) e).isTamed())
+                return false;
+        }
+
+        if (e instanceof LivingEntity) {
+            if (((LivingEntity) e).getCustomName() != null)
+                return false;
+        }
+
+        // Dont match things being ridden
+        if (e.getPassengers() != null)
+            return false;
+
+        // Get the highest level match
+        int bestScore = -1;
+        FilterAction best = null;
+        for (FilterAction action : actions) {
+            // Dont bother checking when it wont help
+            if (action.getPriority() <= bestScore)
+                continue;
+
+            if (action.matches(e)) {
+                best = action;
+                bestScore = action.getPriority();
+            }
+        }
+
+        // No matching filter action. We will assume it is not part of the set to be on the safe side
+        return best != null && best.include;
+
+    }
 	
 	private enum FilterCategory
 	{
@@ -156,14 +149,14 @@ public class EntityFilter
 		Specials(1),
 		All(0);
 		
-		private int mPriority;
+		private final int mPriority;
 		
-		private FilterCategory(int priority)
+		FilterCategory(int priority)
 		{
 			mPriority = priority;
 		}
 		
-		public int getPriority()
+		int getPriority()
 		{
 			return mPriority;
 		}
@@ -171,24 +164,24 @@ public class EntityFilter
 	
 	private static class FilterAction
 	{
-		public EntityType type;
-		public FilterCategory category;
+		EntityType type;
+		FilterCategory category;
 		
-		public boolean include;
+		final boolean include;
 		
-		public FilterAction(EntityType type, boolean include)
+		FilterAction(EntityType type, boolean include)
 		{
 			this.type = type;
 			this.include = include;
 		}
 		
-		public FilterAction(FilterCategory category, boolean include)
+		FilterAction(FilterCategory category, boolean include)
 		{
 			this.category = category;
 			this.include = include;
 		}
 		
-		public int getPriority()
+		int getPriority()
 		{
 			if (category != null)
 				return category.getPriority();
@@ -196,7 +189,7 @@ public class EntityFilter
 				return 10;
 		}
 		
-		public boolean matches(Entity entity)
+		boolean matches(Entity entity)
 		{
 			if (entity instanceof HumanEntity)
 				return false;

@@ -2,9 +2,9 @@ package au.com.addstar.entitycap;
 
 import au.com.addstar.entitycap.group.EntityConcentrationMap;
 
-public class EntityKillerTask implements Runnable
+class EntityKillerTask implements Runnable
 {
-	private EntityCapPlugin mPlugin;
+	private final EntityCapPlugin mPlugin;
 	
 	public EntityKillerTask(EntityCapPlugin plugin)
 	{

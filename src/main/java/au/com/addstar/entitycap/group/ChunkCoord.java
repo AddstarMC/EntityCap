@@ -12,7 +12,7 @@ public class ChunkCoord
 	
 	public final World world;
 	
-	public ChunkCoord(int x, int z, World world)
+	private ChunkCoord(int x, int z, World world)
 	{
 		this.x = x;
 		this.z = z;
@@ -26,15 +26,12 @@ public class ChunkCoord
 	}
 	
 	@Override
-	public boolean equals( Object obj )
-	{
-		if(!(obj instanceof ChunkCoord))
-			return false;
-		
-		return x == ((ChunkCoord)obj).x && z == ((ChunkCoord)obj).z && world.equals(((ChunkCoord)obj).world);
+	public boolean equals( Object obj ) {
+		return obj instanceof ChunkCoord && x == ((ChunkCoord) obj).x && z == ((ChunkCoord) obj).z && world.equals(((ChunkCoord) obj).world);
+
 	}
 	
-	private static HashMap<Long, ChunkCoord> mCache = new HashMap<Long, ChunkCoord>();
+	private static final HashMap<Long, ChunkCoord> mCache = new HashMap<>();
 	
 	public static void clearCache()
 	{
@@ -48,13 +45,8 @@ public class ChunkCoord
 	public static ChunkCoord getChunkCoord(int x, int z, World world)
 	{
 		long hash = ((long)x & 0xFFFFFFFFL) | (((long)z & 0xFFFFFFFFL) << 32);
-		ChunkCoord coord = mCache.get(hash);
-		if(coord == null)
-		{
-			coord = new ChunkCoord(x, z, world);
-			mCache.put(hash, coord);
-		}
-		
+		ChunkCoord coord = mCache.computeIfAbsent(hash, k -> new ChunkCoord(x, z, world));
+
 		Validate.isTrue(coord.x == x && coord.z == z, String.format("Bad Lookup! hash: %s (%d,%d) (%d,%d)",hash, x, z, coord.x, coord.z));
 		
 		return coord;

@@ -10,9 +10,7 @@ import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Sheep;
-import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Villager;
-import org.bukkit.entity.Zombie;
 
 import com.google.common.collect.HashMultimap;
 
@@ -22,10 +20,10 @@ import au.com.addstar.entitycap.group.EntityGroup;
 
 public class EntityRemover implements Callback<EntityConcentrationMap>
 {
-	private GroupSettings mSettings;
-	private boolean mPrintResults;
-	private boolean mIncludeEmpty;
-	private Logger mLog;
+	private final GroupSettings mSettings;
+	private final boolean mPrintResults;
+	private final boolean mIncludeEmpty;
+	private final Logger mLog;
 	
 	public EntityRemover(GroupSettings settings, Logger logger, boolean printResult, boolean printEmpty)
 	{
@@ -52,7 +50,7 @@ public class EntityRemover implements Callback<EntityConcentrationMap>
 	public void onCompleted( EntityConcentrationMap data )
 	{
 		int total = 0;
-		ArrayList<String> logLines = new ArrayList<String>();
+		ArrayList<String> logLines = new ArrayList<>();
 		for(EntityGroup group : data.getAllGroups())
 		{
 			if(!mSettings.matches(group))
@@ -63,9 +61,9 @@ public class EntityRemover implements Callback<EntityConcentrationMap>
 			for(Entity ent : group.getEntities())
 				binMap.put(entityToNumber(ent), ent);
 			
-			ArrayList<LinkedList<Entity>> bins = new ArrayList<LinkedList<Entity>>();
+			ArrayList<LinkedList<Entity>> bins = new ArrayList<>();
 			for(Collection<Entity> bin : binMap.asMap().values())
-				bins.add(new LinkedList<Entity>(bin));
+				bins.add(new LinkedList<>(bin));
 
 			
 			// Process the removal
@@ -73,24 +71,19 @@ public class EntityRemover implements Callback<EntityConcentrationMap>
 			int toRemove = group.getEntities().size() - requiredCount;
 			
 			int actual = 0;
-			HashSet<EntityType> types = new HashSet<EntityType>();
-			for(int i = 0; i < bins.size(); ++i)
-			{
-				LinkedList<Entity> bin = bins.get(i);
-				float percent = bin.size() / (float)group.getEntities().size();
-				int rc = (int)Math.round(percent * toRemove);
+			HashSet<EntityType> types = new HashSet<>();
+			for (LinkedList<Entity> bin : bins) {
+				float percent = bin.size() / (float) group.getEntities().size();
+				int rc = (int) Math.round(percent * toRemove);
 
-				for(; rc > 0 && !bin.isEmpty(); --rc)
-				{
+				for (; rc > 0 && !bin.isEmpty(); --rc) {
 					Entity ent = bin.removeFirst();
-					if(ent.isValid())
-					{
+					if (ent.isValid()) {
 						types.add(ent.getType());
 						ent.remove();
 						++total;
 						++actual;
-					}
-					else
+					} else
 						++rc;
 				}
 			}
