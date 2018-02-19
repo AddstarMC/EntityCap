@@ -23,7 +23,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import au.com.addstar.entitycap.group.EntityConcentrationMap;
 
-class EntityCapPlugin extends JavaPlugin implements Listener
+public class EntityCapPlugin extends JavaPlugin implements Listener
 {
 	private final LinkedList<GroupSettings> mAutoGroups = new LinkedList<>();
 	private final LinkedList<GroupSettings> mAllGroups = new LinkedList<>();
