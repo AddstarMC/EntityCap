@@ -2,6 +2,7 @@ package au.com.addstar.entitycap;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.configuration.ConfigurationSection;
@@ -92,7 +93,7 @@ public class EntityFilter
 			
 			filter.actions.add(action);
 		}
-		
+		if(EntityCapPlugin.instance.isDebug())EntityCapPlugin.instance.getLogger().info("Filter: " + filter.toString());
 		return filter;
 	}
 	
@@ -113,7 +114,7 @@ public class EntityFilter
         }
 
         if (e instanceof LivingEntity) {
-            if (((LivingEntity) e).getCustomName() != null)
+            if (e.getCustomName() != null)
                 return false;
         }
 

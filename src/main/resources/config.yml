@@ -1,4 +1,5 @@
-
+#Enable Debugging
+debug: false
 # Whether to output when entities are removed
 output_to_console: false
 

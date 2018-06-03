@@ -9,14 +9,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import au.com.addstar.entitycap.EntityCapPlugin;
 import org.apache.commons.lang.Validate;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
-import org.bukkit.plugin.Plugin;
 
 import au.com.addstar.entitycap.GroupSettings;
 
@@ -40,7 +41,7 @@ public class EntityConcentrationMap
 	
 	private final HashSet<EntityGroup> mAllGroups;
 	private final HashMultimap<ChunkCoord, EntityGroup> mChunkGroups;
-	private final Plugin mPlugin;
+	private final EntityCapPlugin mPlugin;
 	
 	private final HashMap<World, List<Entity>> mBuildBuffer;
 	private boolean mIsBuilding;
@@ -50,7 +51,7 @@ public class EntityConcentrationMap
 	
 	private final GroupSettings mSettings;
 	
-	public EntityConcentrationMap(GroupSettings settings, Plugin plugin)
+	public EntityConcentrationMap(GroupSettings settings, EntityCapPlugin plugin)
 	{
 		mAllGroups = new HashSet<>();
 		mChunkGroups = HashMultimap.create();
@@ -59,6 +60,13 @@ public class EntityConcentrationMap
 		
 		mPlugin = plugin;
 		mIsBuilding = false;
+		if(mLogger.isDebugEnabled()){
+			mLogger.log(Level.INFO,"EntityCap Debugging is enabled");
+		}else{
+		    if(mPlugin.isDebug()){
+		       mLogger.log(Level.INFO, " You may need to adjust you log4j config to log debugging");
+            }
+        }
 	}
 	
 	// WARNING: BuildThread only
@@ -173,10 +181,10 @@ public class EntityConcentrationMap
 	private void recordEntity(Entity entity, Location location, ChunkCoord chunk, Collection<EntityGroup> possibles)
 	{
 		EntityGroup group = null;
-		
 		if(possibles != null)
 		{
-			for(EntityGroup g : possibles)
+            mLogger.log(Level.TRACE,"Current group count:" +possibles.size());
+            for(EntityGroup g : possibles)
 			{
 				if(g.isInGroup(location))
 				{
@@ -217,17 +225,21 @@ public class EntityConcentrationMap
 	{
 		mLogger.debug("Processing world " + world.getName());
 		Location temp = new Location(null, 0, 0, 0);
+		mLogger.debug("Found " + mBuildBuffer.get(world).size() + " entities to process for " +world.getName());
+		int matched = 0;
 		for(Entity entity : mBuildBuffer.get(world))
 		{
+
 			if(mSettings.matches(entity))
 			{
+				matched++;
 				entity.getLocation(temp);
 				ChunkCoord coord = ChunkCoord.getChunkCoord(temp.getBlockX() >> 4, temp.getBlockZ() >> 4, world);
 				
 				recordEntity(entity, temp, coord, mChunkGroups.get(coord));
 			}
 		}
-		
+		mLogger.debug("Matched and recorded " +matched+" entites for " + world.getName());
 		ChunkCoord.clearCache();
 	}
 	
@@ -349,7 +361,7 @@ public class EntityConcentrationMap
 				mBuildBuffer.clear();
 				mChunkGroups.clear();
 				mAllGroups.clear();
-				
+				mLogger.debug("Scheduling task to for Concentration Map processing on main thread...");
 				Bukkit.getScheduler().runTask(mPlugin, EntityConcentrationMap.this::onBuildComplete);
 			}
 			catch(Throwable e)

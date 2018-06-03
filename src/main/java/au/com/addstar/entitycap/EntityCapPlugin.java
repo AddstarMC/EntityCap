@@ -35,7 +35,15 @@ public class EntityCapPlugin extends JavaPlugin implements Listener
 	private boolean mResetTicksLived;
 	
 	private boolean mNoisy = true;
+
+    public boolean isDebug() {
+        return mDebug;
+    }
+
+    private boolean mDebug = false;
 	private int mInterval;
+
+	public static EntityCapPlugin instance;
 	
 	@Override
 	public void onEnable()
@@ -60,6 +68,7 @@ public class EntityCapPlugin extends JavaPlugin implements Listener
 		
 		Bukkit.getScheduler().runTaskTimer(this, new EntityKillerTask(this), mInterval, mInterval);
 		Bukkit.getPluginManager().registerEvents(this, this);
+		instance = this;
 	}
 	
 	@Override
@@ -74,7 +83,7 @@ public class EntityCapPlugin extends JavaPlugin implements Listener
 		mAutoGroups.clear();
 		
 		FileConfiguration config = getConfig();
-		
+		mDebug = config.getBoolean("debug", false);
 		mNoisy = config.getBoolean("output_to_console", false);
 		mInterval = config.getInt("ticks_between_run", 1200);
 		if(mInterval <= 0)
