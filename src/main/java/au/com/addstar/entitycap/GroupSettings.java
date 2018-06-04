@@ -38,12 +38,21 @@ public class GroupSettings
 	}
 	
 	public boolean matches(Entity e) {
+		if(EntityCapPlugin.instance.isDebug()){
+			EntityCapPlugin.instance.getLogger().info("Entity: " + e.getName()+" match against:" + mFilter.toString() +" : " + (mFilter.matches(e)));
+			EntityCapPlugin.instance.getLogger().info("Entity match against: Ticks Lived : " + (e.getTicksLived() >= mMinTicksLived));
+		}
 		return mFilter.matches(e) && e.getTicksLived() >= mMinTicksLived;
 
 	}
 	
 	public boolean matches(EntityGroup group)
 	{
+		if(EntityCapPlugin.instance.isDebug()){
+			EntityCapPlugin.instance.getLogger().info("Group match again:" + this.mName +" : " + (group.getEntities().size() > mMaxAmount && group.getDensity() > mMaxDensity)
+
+			);
+		}
 		return group.getEntities().size() > mMaxAmount && group.getDensity() > mMaxDensity;
 	}
 	
@@ -138,5 +147,22 @@ public class GroupSettings
 					mFilter.addType(type);
 			}
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "GroupSettings{" +
+				"mFilter=" + mFilter +
+				", mMaxAmount=" + mMaxAmount +
+				", mMaxDensity=" + mMaxDensity +
+				", mMinTicksLived=" + mMinTicksLived +
+				", mAutoRun=" + mAutoRun +
+				", mName='" + mName + '\'' +
+				", mDisableKill=" + mDisableKill +
+				", mWarnThreshold=" + mWarnThreshold +
+				", mWorlds=" + mWorlds +
+				", mWorldsBlacklist=" + mWorldsBlacklist +
+				", mIsChunkOnly=" + mIsChunkOnly +
+				'}';
 	}
 }

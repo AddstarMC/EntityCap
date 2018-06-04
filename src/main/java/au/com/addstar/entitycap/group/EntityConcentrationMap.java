@@ -291,7 +291,7 @@ public class EntityConcentrationMap
 		mIsBuilding = true;
 		mCallback = callback;
 		
-		mLogger.debug("Issuing build request for " + this);
+		mLogger.debug("Issuing build request: Settings"+ mSettings.getName() + " " + mSettings.toString());
 		
 		synchronized(mSync)
 		{
