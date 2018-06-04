@@ -24,6 +24,8 @@ public class GroupSettings
 	
 	private HashSet<String> mWorlds;
 	private boolean mWorldsBlacklist;
+
+	private boolean debug = EntityCapPlugin.instance.isDebug();
 	
 	// Chunk only settings
 	private boolean mIsChunkOnly;
@@ -38,18 +40,22 @@ public class GroupSettings
 	}
 	
 	public boolean matches(Entity e) {
-		if(EntityCapPlugin.instance.isDebug()){
-			EntityCapPlugin.instance.getLogger().info("Entity: " + e.getName()+" match against:" + mFilter.toString() +" : " + (mFilter.matches(e)));
-			EntityCapPlugin.instance.getLogger().info("Entity match against: Ticks Lived : " + (e.getTicksLived() >= mMinTicksLived));
-		}
-		return mFilter.matches(e) && e.getTicksLived() >= mMinTicksLived;
+		if(debug){
+            boolean filtermatch = mFilter.matches(e);
+            boolean isOld = e.getTicksLived() >= mMinTicksLived;
+			EntityCapPlugin.instance.getLogger().info("Entity: " + e.getName()+" tested against:" + mFilter.toString() +"  Result : " + filtermatch);
+			EntityCapPlugin.instance.getLogger().info("Entity Old: " + isOld);
+            return filtermatch && isOld ;
+        }else{
+		    return mFilter.matches(e) && e.getTicksLived() >= mMinTicksLived;
+        }
 
 	}
 	
 	public boolean matches(EntityGroup group)
 	{
-		if(EntityCapPlugin.instance.isDebug()){
-			EntityCapPlugin.instance.getLogger().info("Group match again:" + this.mName +" : " + (group.getEntities().size() > mMaxAmount && group.getDensity() > mMaxDensity)
+		if(debug){
+			EntityCapPlugin.instance.getLogger().info("Group: "+ group.getEntities().iterator().next().getType().name()+ "  match again:" + this.mName +" : " + (group.getEntities().size() > mMaxAmount && group.getDensity() > mMaxDensity)
 
 			);
 		}

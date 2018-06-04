@@ -227,6 +227,7 @@ public class EntityConcentrationMap
 		Location temp = new Location(null, 0, 0, 0);
 		mLogger.debug("Found " + mBuildBuffer.get(world).size() + " entities to process for " +world.getName());
 		int matched = 0;
+		int unmatched = 0;
 		for(Entity entity : mBuildBuffer.get(world))
 		{
 
@@ -237,9 +238,12 @@ public class EntityConcentrationMap
 				ChunkCoord coord = ChunkCoord.getChunkCoord(temp.getBlockX() >> 4, temp.getBlockZ() >> 4, world);
 				
 				recordEntity(entity, temp, coord, mChunkGroups.get(coord));
-			}
+			} else unmatched++;
+
 		}
 		mLogger.debug("Matched and recorded " +matched+" entites for " + world.getName());
+		mLogger.debug("Unmatched  " + unmatched +" entites for " + world.getName());
+
 		ChunkCoord.clearCache();
 	}
 	

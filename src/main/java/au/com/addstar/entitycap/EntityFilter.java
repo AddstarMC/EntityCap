@@ -112,11 +112,11 @@ public class EntityFilter
 	
 	public boolean matches(Entity e) {
         boolean debug = EntityCapPlugin.instance.isDebug();
-        if(debug){EntityCapPlugin.instance.getLogger().info("Entity: " + e.getName());}
+        if(debug){EntityCapPlugin.instance.getLogger().info("Entity: " + e.getName() + " testing :" + this.toString());}
         // Dont match players or NPCs
         if (e instanceof HumanEntity) {
             if (debug) {
-                EntityCapPlugin.instance.getLogger().info("   Human: no match ");
+                EntityCapPlugin.instance.getLogger().info("   Human: true ");
             }
             return false;
         }
@@ -125,7 +125,7 @@ public class EntityFilter
         if (e instanceof Tameable) {
             if (((Tameable) e).isTamed()) {
                 if (debug) {
-                    EntityCapPlugin.instance.getLogger().info("   Tamed: no match ");
+                    EntityCapPlugin.instance.getLogger().info("   Tamed: true ");
                 }
                 return false;
             }
@@ -135,7 +135,7 @@ public class EntityFilter
         if (e instanceof LivingEntity) {
             if (e.getCustomName() != null) {
                 if (debug) {
-                    EntityCapPlugin.instance.getLogger().info("   CustomName : no match ");
+                    EntityCapPlugin.instance.getLogger().info("   CustomName : true ");
                 }
                 return false;
             }
@@ -144,7 +144,7 @@ public class EntityFilter
         // Dont match things being ridden
         if (e.getPassengers() != null) {
             if (debug) {
-                EntityCapPlugin.instance.getLogger().info("   Has Passengers : no match ");
+                EntityCapPlugin.instance.getLogger().info("   Has Passengers : true ");
             }
             return false;
         }
@@ -159,16 +159,14 @@ public class EntityFilter
             if (action.matches(e)) {
                 best = action;
                 bestScore = action.getPriority();
-                if (debug) {
-                    EntityCapPlugin.instance.getLogger().info(action.type.toString() + " :  matched ");
-                }
-            }else{
-                if (debug) {
-                    EntityCapPlugin.instance.getLogger().info(action.type.toString() + " : no match ");
-                }
             }
         }
-
+        if(debug) {
+            if (best != null)
+                EntityCapPlugin.instance.getLogger().info("   Best Match: " + best.type.toString() + " Include: " + best.include);
+            if (best == null)
+                EntityCapPlugin.instance.getLogger().info("   Filter was unable to get any match and is false");
+        }
         // No matching filter action. We will assume it is not part of the set to be on the safe side
         return best != null && best.include;
 
@@ -230,34 +228,34 @@ public class EntityFilter
 				return false;
 			
 			if (type != null) {
-                if (debug) EntityCapPlugin.instance.getLogger().info("  Filter match on Type is: " + (entity.getType() == type));
+                if (debug) EntityCapPlugin.instance.getLogger().info("  FilterAction match on Type is: " + (entity.getType() == type));
                 return entity.getType() == type;
             }
 			
 			switch (category)
 			{
 			case All:
-                if (debug) EntityCapPlugin.instance.getLogger().info("  Filter match on ALL");
+                if (debug) EntityCapPlugin.instance.getLogger().info("  FilterAction match on ALL");
 				return true;
 			case Vehicles:
                 if(entity instanceof Vehicle && !(entity instanceof Pig)) {
-                    if (debug) EntityCapPlugin.instance.getLogger().info("  Filter match on ALL");
+                    if (debug) EntityCapPlugin.instance.getLogger().info("  FilterAction match on ALL");
                     return true;
                 }
                 case Animals:
 				if(entity instanceof Animals){
-                    if (debug) EntityCapPlugin.instance.getLogger().info("  Filter match on Animal");
+                    if (debug) EntityCapPlugin.instance.getLogger().info("  FilterAction match on Animal");
                     return true;
                 }
                 case Mobs:
 
 				if(entity instanceof Monster || entity instanceof Ghast || entity instanceof Slime){
-                    if (debug) EntityCapPlugin.instance.getLogger().info("  Filter match on Mob");
+                    if (debug) EntityCapPlugin.instance.getLogger().info("  FilterAction match on Mob");
                     return true;
                 };
 			case Inventories:
 				if(entity instanceof InventoryHolder || entity instanceof ItemFrame || entity instanceof ArmorStand){
-                    if (debug) EntityCapPlugin.instance.getLogger().info("  Filter match on Inventories");
+                    if (debug) EntityCapPlugin.instance.getLogger().info("  FilterAction match on Inventories");
                     return true;
                 };
 			case Specials:
