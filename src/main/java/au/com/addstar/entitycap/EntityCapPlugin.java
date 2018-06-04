@@ -48,6 +48,7 @@ public class EntityCapPlugin extends JavaPlugin implements Listener
 	@Override
 	public void onEnable()
 	{
+		instance = this;
 		saveDefaultConfig();
 		
 		try
@@ -68,7 +69,6 @@ public class EntityCapPlugin extends JavaPlugin implements Listener
 		
 		Bukkit.getScheduler().runTaskTimer(this, new EntityKillerTask(this), mInterval, mInterval);
 		Bukkit.getPluginManager().registerEvents(this, this);
-		instance = this;
 	}
 	
 	@Override

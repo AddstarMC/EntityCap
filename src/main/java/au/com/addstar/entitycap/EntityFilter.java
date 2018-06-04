@@ -40,7 +40,16 @@ public class EntityFilter
 	{
 		actions = new ArrayList<>();
 	}
-	
+
+	@Override
+	public String toString() {
+		StringBuilder result = new StringBuilder();
+		for(FilterAction action: actions){
+			result.append(action.toString());
+		}
+		return result.toString();
+	}
+
 	public static EntityFilter from(ConfigurationSection section) throws InvalidConfigurationException
 	{
 		EntityFilter filter = new EntityFilter();
