@@ -74,7 +74,7 @@ public class EntityRemover implements Callback<EntityConcentrationMap>
 			HashSet<EntityType> types = new HashSet<>();
 			for (LinkedList<Entity> bin : bins) {
 				float percent = bin.size() / (float) group.getEntities().size();
-				int rc = (int) Math.round(percent * toRemove);
+				int rc = Math.round(percent * toRemove);
 
 				for (; rc > 0 && !bin.isEmpty(); --rc) {
 					Entity ent = bin.removeFirst();

@@ -248,8 +248,8 @@ public class EntityFilter
 				if(entity instanceof Animals){
                     if (debug) EntityCapPlugin.instance.getLogger().info("  Filter match on Animal");
                     return true;
-                };
-			case Mobs:
+                }
+                case Mobs:
 
 				if(entity instanceof Monster || entity instanceof Ghast || entity instanceof Slime){
                     if (debug) EntityCapPlugin.instance.getLogger().info("  Filter match on Mob");

@@ -4,7 +4,6 @@ import au.com.addstar.entitycap.group.Callback;
 import au.com.addstar.entitycap.group.EntityConcentrationMap;
 import au.com.addstar.entitycap.group.EntityGroup;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
