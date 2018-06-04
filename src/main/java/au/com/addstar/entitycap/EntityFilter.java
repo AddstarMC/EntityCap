@@ -142,7 +142,7 @@ public class EntityFilter
         }
 
         // Dont match things being ridden
-        if (e.getPassengers() != null) {
+        if (e.getPassengers().size() > 0) {
             if (debug) {
                 EntityCapPlugin.instance.getLogger().info("   Has Passengers : true ");
             }
