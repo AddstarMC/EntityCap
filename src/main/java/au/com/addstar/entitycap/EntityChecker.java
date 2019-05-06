@@ -11,7 +11,7 @@ public class EntityChecker implements Callback<EntityConcentrationMap>
 {
 	private final GroupSettings mSettings;
 	private final CheckReport mReporter;
-	private Logger log = EntityCapPlugin.instance.getLogger();
+	private final Logger log = EntityCapPlugin.instance.getLogger();
 	private boolean debug = EntityCapPlugin.instance.isDebug();
 	
 	public EntityChecker(GroupSettings settings, CheckReport reporter)

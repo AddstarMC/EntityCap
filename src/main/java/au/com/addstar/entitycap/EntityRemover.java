@@ -1,22 +1,16 @@
 package au.com.addstar.entitycap;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.logging.Logger;
 
-import org.bukkit.entity.Creeper;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Sheep;
-import org.bukkit.entity.Villager;
+import org.bukkit.entity.*;
 
 import com.google.common.collect.HashMultimap;
 
 import au.com.addstar.entitycap.group.Callback;
 import au.com.addstar.entitycap.group.EntityConcentrationMap;
 import au.com.addstar.entitycap.group.EntityGroup;
+import org.bukkit.material.Colorable;
 
 public class EntityRemover implements Callback<EntityConcentrationMap>
 {
@@ -36,13 +30,29 @@ public class EntityRemover implements Callback<EntityConcentrationMap>
 	private int entityToNumber(Entity ent)
 	{
 		int base = ent.getType().ordinal() * 100;
-		
-		if(ent instanceof Sheep)
-			base += ((Sheep)ent).getColor().ordinal();
-		else if(ent instanceof Villager)
-			base += ((Villager)ent).getProfession().ordinal();
-		else if(ent instanceof Creeper)
-			base += (((Creeper)ent).isPowered() ? 1 : 0);
+		switch(ent.getType()){
+			case SHEEP:
+			case LLAMA:
+				if(ent instanceof Colorable && ((Colorable) ent).getColor() !=null) {
+					base += Objects.requireNonNull(((Colorable) ent).getColor()).ordinal();
+				}
+				break;
+			case PANDA:
+				base += ((Panda)ent).getMainGene().ordinal();
+			case OCELOT:
+				base += ((Ocelot)ent).getCatType().ordinal();
+			case VILLAGER:
+				base += ((Villager)ent).getProfession().ordinal();
+				break;
+			case CREEPER:
+				base += (((Creeper)ent).isPowered() ? 1 : 0);
+				break;
+			case PARROT:
+				base += ((Parrot)ent).getVariant().ordinal();
+				break;
+				default:
+					break;
+		}
 		return base;
 	}
 	
@@ -65,7 +75,6 @@ public class EntityRemover implements Callback<EntityConcentrationMap>
 			for(Collection<Entity> bin : binMap.asMap().values())
 				bins.add(new LinkedList<>(bin));
 
-			
 			// Process the removal
 			int requiredCount = Math.max(mSettings.getMaxEntities(), (int)(mSettings.getMaxDensity() * (Math.PI * group.getRadiusSq())));
 			int toRemove = group.getEntities().size() - requiredCount;

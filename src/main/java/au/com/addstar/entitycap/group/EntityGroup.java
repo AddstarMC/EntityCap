@@ -16,7 +16,7 @@ public class EntityGroup implements Comparable<EntityGroup>
 	
 	private final int mId;
 	
-	private double mRadius = 0;
+	private double mRadius;
 	private Location mLocation;
 	
 	private double mMeanDistance;
@@ -248,7 +248,7 @@ public class EntityGroup implements Comparable<EntityGroup>
 	@Override
 	public String toString()
 	{
-		return String.format("Group{%d,%d,%d,%s-%d Entities: %d}", mLocation.getBlockX(), mLocation.getBlockY(), mLocation.getBlockZ(), mLocation.getWorld().getName(), (int)getRadius(), mEntities.size());
+		return String.format("Group{%d,%d,%d,%s-%d Entities: %d}", mLocation.getBlockX(), mLocation.getBlockY(), mLocation.getBlockZ(), (mLocation.getWorld() != null)?mLocation.getWorld().getName():"", (int)getRadius(), mEntities.size());
 	}
 
 	@Override

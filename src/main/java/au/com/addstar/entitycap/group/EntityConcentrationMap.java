@@ -97,16 +97,12 @@ public class EntityConcentrationMap
 	// WARNING: BuildThread only
 	private void updateChunkRegistrations(EntityGroup group, World world)
 	{
-		double radius = group.getRadius();
-		int minX = ((int)(group.getLocation().getBlockX() - radius) >> 4);
-		int minZ = ((int)(group.getLocation().getBlockZ() - radius) >> 4);
-		
-		int maxX = ((int)(group.getLocation().getBlockX() + radius) >> 4);
-		int maxZ = ((int)(group.getLocation().getBlockZ() + radius) >> 4);
-		
-		for(int x = minX; x <= maxX; ++x)
+
+		Parameters result = createParameters(group);
+
+		for(int x = result.minX; x <= result.maxX; ++x)
 		{
-			for(int z = minZ; z <= maxZ; ++z)
+			for(int z = result.minZ; z <= result.maxZ; ++z)
 				mChunkGroups.put(ChunkCoord.getChunkCoord(x, z, world), group);
 		}
 	}
@@ -114,36 +110,37 @@ public class EntityConcentrationMap
 	// WARNING: BuildThread only
 	private void unregister(EntityGroup group, World world, boolean all)
 	{
-		double radius = group.getRadius();
-		int minX = ((int)(group.getLocation().getBlockX() - radius) >> 4);
-		int minZ = ((int)(group.getLocation().getBlockZ() - radius) >> 4);
-		
-		int maxX = ((int)(group.getLocation().getBlockX() + radius) >> 4);
-		int maxZ = ((int)(group.getLocation().getBlockZ() + radius) >> 4);
-		
+
+		Parameters result = createParameters(group);
+
 		if(all)
 			mAllGroups.remove(group);
 		
-		for(int x = minX; x <= maxX; ++x)
+		for(int x = result.minX; x <= result.maxX; ++x)
 		{
-			for(int z = minZ; z <= maxZ; ++z)
+			for(int z = result.minZ; z <= result.maxZ; ++z)
 				mChunkGroups.remove(ChunkCoord.getChunkCoord(x, z, world), group);
 		}
+	}
+
+	private Parameters createParameters(EntityGroup g){
+		Parameters p = new Parameters();
+		p.radius = g.getRadius();
+		p.minX = ((int)(g.getLocation().getBlockX() - p.radius) >> 4);
+		p.minZ = ((int)(g.getLocation().getBlockZ() - p.radius) >> 4);
+
+		p.maxX = ((int)(g.getLocation().getBlockX() + p.radius) >> 4);
+		p.maxZ = ((int)(g.getLocation().getBlockZ() + p.radius) >> 4);
+		return p;
 	}
 	
 	// WARNING: BuildThread only
 	private EntityGroup doMerges(EntityGroup group, World world)
 	{
-		double radius = group.getRadius();
-		int minX = ((int)(group.getLocation().getBlockX() - radius) >> 4);
-		int minZ = ((int)(group.getLocation().getBlockZ() - radius) >> 4);
-		
-		int maxX = ((int)(group.getLocation().getBlockX() + radius) >> 4);
-		int maxZ = ((int)(group.getLocation().getBlockZ() + radius) >> 4);
-		
-		for(int x = minX; x <= maxX; ++x)
+		Parameters result = createParameters(group);
+		for(int x = result.minX; x <= result.maxX; ++x)
 		{
-			for(int z = minZ; z <= maxZ; ++z)
+			for(int z = result.minZ; z <= result.maxZ; ++z)
 			{
 				Set<EntityGroup> groups = mChunkGroups.get(ChunkCoord.getChunkCoord(x, z, world));
 				if(groups == null)
@@ -330,6 +327,15 @@ public class EntityConcentrationMap
 		
 		return mOrdered;
 	}
+
+	private class Parameters{
+		int minX;
+		int maxX;
+		int minZ;
+		int maxZ;
+		double radius;
+
+			}
 	
 	private class BuildThread extends Thread
 	{
@@ -382,6 +388,7 @@ public class EntityConcentrationMap
 						{
 							mLogger.debug("Starting waiting build thread.");
 							BuildThread thread = mQueue.poll();
+							assert thread != null;
 							thread.start();
 						}
 						else

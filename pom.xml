@@ -8,7 +8,8 @@
     <build.number />
     <plugin.version>${project.version}-${build.number}</plugin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <spigot.version>1.12.2-R0.1-SNAPSHOT</spigot.version>
+    <spigot.api.version>1.13</spigot.api.version>
+    <spigot.version>1.14-R0.1-SNAPSHOT</spigot.version>
   </properties>
   <scm>
     <connection>scm:git:git@github.com:AddstarMC/EntityCap.git</connection>
@@ -79,6 +80,11 @@
       <version>2.3</version>
       <scope>provided</scope>
       <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.8.1</version>
     </dependency>
   </dependencies>
 

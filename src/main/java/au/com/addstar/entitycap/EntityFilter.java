@@ -2,6 +2,7 @@ package au.com.addstar.entitycap;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.configuration.ConfigurationSection;
@@ -28,7 +29,6 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Slime;
 import org.bukkit.entity.Tameable;
 import org.bukkit.entity.Vehicle;
-import org.bukkit.entity.Weather;
 import org.bukkit.inventory.InventoryHolder;
 
 public class EntityFilter
@@ -56,14 +56,14 @@ public class EntityFilter
 		{
 			String value = section.getString(key);
 			boolean include;
-			if (value.equalsIgnoreCase("ignore"))
+			if (value != null && value.equalsIgnoreCase("ignore"))
 				include = false;
-			else if (value.equalsIgnoreCase("include"))
+			else if (value != null && value.equalsIgnoreCase("include"))
 				include = true;
 			else
 			{
 				throw new InvalidConfigurationException(
-						"Filter error in group " + section.getParent().getName() + " for type " + key + ": Unknown action " + value + 
+						"Filter error in group " + Objects.requireNonNull(section.getParent()).getName() + " for type " + key + ": Unknown action " + value +
 						". Possible values are 'ignore', or 'include'");
 			}
 			
@@ -94,7 +94,7 @@ public class EntityFilter
 				{
 					// No other options
 					throw new InvalidConfigurationException(
-							"Filter error in group " + section.getParent().getName() + ": Unknown type " + key + 
+							"Filter error in group " + Objects.requireNonNull(section.getParent()).getName() + ": Unknown type " + key +
 							". Possible values are " + StringUtils.join(FilterCategory.values(), ", ") + " or an entity type");
 				}
 			}
@@ -267,7 +267,6 @@ public class EntityFilter
 					entity instanceof EnderCrystal ||
 					entity instanceof EnderSignal ||
 					entity instanceof FallingBlock ||
-					entity instanceof Weather ||
 					entity instanceof ExperienceOrb ||
 					entity instanceof Firework ||
 					entity instanceof ArmorStand){

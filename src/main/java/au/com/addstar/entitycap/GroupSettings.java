@@ -29,6 +29,7 @@ public class GroupSettings
 	
 	// Chunk only settings
 	private boolean mIsChunkOnly;
+	private int mChunkRadius;
 	
 	public GroupSettings()
 	{
@@ -123,19 +124,9 @@ public class GroupSettings
 		
 		// Chunk specific
 		mIsChunkOnly = section.getBoolean("chunk_limit", false);
-		
-		if(section.isList("worlds"))
-		{
-			List<String> worlds = section.getStringList("worlds");
-			mWorlds = new HashSet<>(worlds.size());
-			for(String world : worlds)
-				mWorlds.add(world.toLowerCase());
-		}
-		else
-			mWorlds = new HashSet<>();
-		
-		mWorldsBlacklist = section.getBoolean("worlds_is_blacklist", true);
-		
+		mChunkRadius = section.getInt("chunk_radius",0);
+		mWorlds = new HashSet<>();
+		mWorldsBlacklist = EntityCapPlugin.defineWorldForSecion(section,mWorlds);
 		if (section.isConfigurationSection("filter"))
 			mFilter = EntityFilter.from(section.getConfigurationSection("filter"));
 		else
@@ -149,7 +140,7 @@ public class GroupSettings
 			for(String typeName : types)
 			{
 				EntityType type = EntityType.valueOf(typeName);
-				if(type != null && type.isAlive())
+				if(type.isAlive())
 					mFilter.addType(type);
 			}
 		}
@@ -169,6 +160,7 @@ public class GroupSettings
 				", mWorlds=" + mWorlds +
 				", mWorldsBlacklist=" + mWorldsBlacklist +
 				", mIsChunkOnly=" + mIsChunkOnly +
+				", mChunkRadius=" + mChunkRadius+
 				'}';
 	}
 }

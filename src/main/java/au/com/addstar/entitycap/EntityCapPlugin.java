@@ -1,16 +1,13 @@
 package au.com.addstar.entitycap;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
@@ -63,7 +60,7 @@ public class EntityCapPlugin extends JavaPlugin implements Listener
 			return;
 		}
 		
-		getCommand("entitycap").setExecutor(new CapCommand(this));
+		Objects.requireNonNull(getCommand("entitycap")).setExecutor(new CapCommand(this));
 		
 		SpecialLog.initialize(new File(getDataFolder(), "removals.log"));
 		
@@ -95,7 +92,7 @@ public class EntityCapPlugin extends JavaPlugin implements Listener
 				continue;
 			
 			GroupSettings group = new GroupSettings();
-			group.load(config.getConfigurationSection(key));
+			group.load(Objects.requireNonNull(config.getConfigurationSection(key)));
 			
 			if (group.isChunkOnly())
 				mChunkGroups.add(group);
@@ -108,22 +105,21 @@ public class EntityCapPlugin extends JavaPlugin implements Listener
 			
 			getLogger().info(String.format("Loaded group %s: AutoRun: %s", group.getName(), group.shouldAutorun()));
 		}
-		
-		if(config.isList("worlds"))
-		{
-			List<String> worlds = config.getStringList("worlds");
-			mWorlds = new HashSet<>(worlds.size());
-			for(String world : worlds)
-				mWorlds.add(world.toLowerCase());
-		}
-		else
-			mWorlds = new HashSet<>();
-		
-		mWorldsBlacklist = config.getBoolean("worlds_is_blacklist", true);
-		
+		mWorlds = new HashSet<>();
+		mWorldsBlacklist = defineWorldForSecion(config,mWorlds);
 		mResetTicksLived = config.getBoolean("vehicle_reset_ticks_lived", false);
 	}
-	
+
+	public static boolean defineWorldForSecion(ConfigurationSection section, HashSet<String> worldSet) {
+		if(section.isList("worlds"))
+		{
+			List<String> worlds = section.getStringList("worlds");
+			for(String world : worlds)
+				worldSet.add(world.toLowerCase());
+		}
+		return section.getBoolean("worlds_is_blacklist", true);
+}
+
 	public Collection<GroupSettings> getGroups(boolean includeManual)
 	{
 		if(includeManual)
