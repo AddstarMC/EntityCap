@@ -227,7 +227,6 @@ public class EntityConcentrationMap
 		int unmatched = 0;
 		for(Entity entity : mBuildBuffer.get(world))
 		{
-
 			if(mSettings.matches(entity))
 			{
 				matched++;

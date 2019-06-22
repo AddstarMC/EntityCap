@@ -30,7 +30,7 @@ public class EntityCapPlugin extends JavaPlugin implements Listener
 	private HashSet<String> mWorlds;
 	private boolean mWorldsBlacklist;
 	private boolean mResetTicksLived;
-	
+
 	private boolean mNoisy = true;
 
     public boolean isDebug() {
@@ -39,6 +39,9 @@ public class EntityCapPlugin extends JavaPlugin implements Listener
 
     private boolean mDebug = false;
 	private int mInterval;
+
+	public boolean mIgnoreTamed;
+	public boolean mIgnoreNamed;
 
 	public static EntityCapPlugin instance;
 	
@@ -108,6 +111,8 @@ public class EntityCapPlugin extends JavaPlugin implements Listener
 		mWorlds = new HashSet<>();
 		mWorldsBlacklist = defineWorldForSecion(config,mWorlds);
 		mResetTicksLived = config.getBoolean("vehicle_reset_ticks_lived", false);
+		mIgnoreTamed = config.getBoolean("ignore_tamed", true);
+		mIgnoreNamed = config.getBoolean("ignore_named", true);
 	}
 
 	public static boolean defineWorldForSecion(ConfigurationSection section, HashSet<String> worldSet) {

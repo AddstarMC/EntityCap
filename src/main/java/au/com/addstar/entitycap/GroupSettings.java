@@ -44,13 +44,12 @@ public class GroupSettings
 		if(debug){
             boolean filtermatch = mFilter.matches(e);
             boolean isOld = e.getTicksLived() >= mMinTicksLived;
-			EntityCapPlugin.instance.getLogger().info("Entity: " + e.getName()+" tested against:" + mFilter.toString() +"  Result : " + filtermatch);
+			EntityCapPlugin.instance.getLogger().info("Entity: " + e.getName()+" tested against: " + mFilter.toString() + "- Result : " + filtermatch);
 			EntityCapPlugin.instance.getLogger().info("Entity Old: " + isOld);
             return filtermatch && isOld ;
         }else{
 		    return mFilter.matches(e) && e.getTicksLived() >= mMinTicksLived;
         }
-
 	}
 	
 	public boolean matches(EntityGroup group)

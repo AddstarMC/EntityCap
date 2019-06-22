@@ -34,7 +34,7 @@ import org.bukkit.inventory.InventoryHolder;
 public class EntityFilter
 {
 	private final List<FilterAction> actions;
-	
+
 	public EntityFilter()
 	{
 		actions = new ArrayList<>();
@@ -66,7 +66,7 @@ public class EntityFilter
 						"Filter error in group " + Objects.requireNonNull(section.getParent()).getName() + " for type " + key + ": Unknown action " + value +
 						". Possible values are 'ignore', or 'include'");
 			}
-			
+
 			// Try a filter category
 			FilterAction action = null;
 			for (FilterCategory c : FilterCategory.values())
@@ -77,7 +77,7 @@ public class EntityFilter
 					break;
 				}
 			}
-			
+
 			if (action == null)
 			{
 				// Try an entity type
@@ -89,7 +89,7 @@ public class EntityFilter
 						break;
 					}
 				}
-				
+
 				if (action == null)
 				{
 					// No other options
@@ -98,18 +98,18 @@ public class EntityFilter
 							". Possible values are " + StringUtils.join(FilterCategory.values(), ", ") + " or an entity type");
 				}
 			}
-			
+
 			filter.actions.add(action);
 		}
 		if(EntityCapPlugin.instance.isDebug())EntityCapPlugin.instance.getLogger().info("Filter: " + filter.toString());
 		return filter;
 	}
-	
+
 	public void addType(EntityType type)
 	{
 		actions.add(new FilterAction(type, true));
 	}
-	
+
 	public boolean matches(Entity e) {
         boolean debug = EntityCapPlugin.instance.isDebug();
         if(debug){EntityCapPlugin.instance.getLogger().info("Entity: " + e.getName() + " testing :" + this.toString());}
@@ -122,22 +122,26 @@ public class EntityFilter
         }
 
         // Dont match 'pets'
-        if (e instanceof Tameable) {
-            if (((Tameable) e).isTamed()) {
-                if (debug) {
-                    EntityCapPlugin.instance.getLogger().info("   Tamed: true ");
+        if (EntityCapPlugin.instance.mIgnoreTamed) {
+            if (e instanceof Tameable) {
+                if (((Tameable) e).isTamed()) {
+                    if (debug) {
+                        EntityCapPlugin.instance.getLogger().info("   Tamed: true ");
+                    }
+                    return false;
                 }
-                return false;
             }
         }
 
-
-        if (e instanceof LivingEntity) {
-            if (e.getCustomName() != null) {
-                if (debug) {
-                    EntityCapPlugin.instance.getLogger().info("   CustomName : true ");
+		// Dont match named animals
+        if (EntityCapPlugin.instance.mIgnoreNamed) {
+            if (e instanceof LivingEntity) {
+                if (e.getCustomName() != null) {
+                    if (debug) {
+                        EntityCapPlugin.instance.getLogger().info("   CustomName : true ");
+                    }
+                    return false;
                 }
-                return false;
             }
         }
 
@@ -148,6 +152,7 @@ public class EntityFilter
             }
             return false;
         }
+
         // Get the highest level match
         int bestScore = -1;
         FilterAction best = null;
@@ -163,15 +168,18 @@ public class EntityFilter
         }
         if(debug) {
             if (best != null)
-                EntityCapPlugin.instance.getLogger().info("   Best Match: " + best.type.toString() + " Include: " + best.include);
-            if (best == null)
+				if (best.type != null)
+					EntityCapPlugin.instance.getLogger().info("   Best Match: " + best.type + ", Include: " + best.include);
+				else
+					EntityCapPlugin.instance.getLogger().info("   Best Match: " + best.category + ", Include: " + best.include);
+			else
                 EntityCapPlugin.instance.getLogger().info("   Filter was unable to get any match and is false");
         }
         // No matching filter action. We will assume it is not part of the set to be on the safe side
         return best != null && best.include;
 
     }
-	
+
 	private enum FilterCategory
 	{
 		Animals(1),
@@ -180,39 +188,39 @@ public class EntityFilter
 		Inventories(3),
 		Specials(1),
 		All(0);
-		
+
 		private final int mPriority;
-		
+
 		FilterCategory(int priority)
 		{
 			mPriority = priority;
 		}
-		
+
 		int getPriority()
 		{
 			return mPriority;
 		}
 	}
-	
+
 	private static class FilterAction
 	{
 		EntityType type;
 		FilterCategory category;
-		
+
 		final boolean include;
-		
+
 		FilterAction(EntityType type, boolean include)
 		{
 			this.type = type;
 			this.include = include;
 		}
-		
+
 		FilterAction(FilterCategory category, boolean include)
 		{
 			this.category = category;
 			this.include = include;
 		}
-		
+
 		int getPriority()
 		{
 			if (category != null)
@@ -220,18 +228,18 @@ public class EntityFilter
 			else
 				return 10;
 		}
-		
+
 		boolean matches(Entity entity)
 		{
 		    boolean debug = EntityCapPlugin.instance.isDebug();
 			if (entity instanceof HumanEntity)
 				return false;
-			
+
 			if (type != null) {
                 if (debug) EntityCapPlugin.instance.getLogger().info("  FilterAction match on Type is: " + (entity.getType() == type));
                 return entity.getType() == type;
             }
-			
+
 			switch (category)
 			{
 			case All:
@@ -242,13 +250,12 @@ public class EntityFilter
                     if (debug) EntityCapPlugin.instance.getLogger().info("  FilterAction match on ALL");
                     return true;
                 }
-                case Animals:
+			case Animals:
 				if(entity instanceof Animals){
                     if (debug) EntityCapPlugin.instance.getLogger().info("  FilterAction match on Animal");
                     return true;
                 }
-                case Mobs:
-
+			case Mobs:
 				if(entity instanceof Monster || entity instanceof Ghast || entity instanceof Slime){
                     if (debug) EntityCapPlugin.instance.getLogger().info("  FilterAction match on Mob");
                     return true;
@@ -277,14 +284,14 @@ public class EntityFilter
                     return false;
 			}
 		}
-		
+
 		@Override
 		public String toString()
 		{
 			if (category != null)
-				return category.toString() + ": " + (include ? "include" : "ignore");
+				return (include ? "include" : "ignore") + ":" + category + " ";
 			else
-				return type.toString() + ": " + (include ? "include" : "ignore");
+				return (include ? "include" : "ignore") + ":" + type + " ";
 		}
 	}
 }

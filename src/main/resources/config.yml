@@ -1,5 +1,6 @@
 #Enable Debugging
 debug: false
+
 # Whether to output when entities are removed
 output_to_console: false
 
@@ -10,6 +11,12 @@ ticks_between_run: 1200
 # When true, exiting a vehicle will reset its ticks lived.
 # Useful to remove vehicles only when they have been empty for a while
 vehicle_reset_ticks_lived: false
+
+# Should we completely ignore tamed entities?
+ignore_tamed: true
+
+# Should we completely ignore named entities?
+ignore_named: true
 
 worlds: []
 

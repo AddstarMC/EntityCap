@@ -23,13 +23,13 @@ public class EntityChecker implements Callback<EntityConcentrationMap>
 	@Override
 	public void onCompleted( EntityConcentrationMap data )
 	{
-		if(debug)log.info("EntityCap: processing"+  data.getAllGroups().size() + " groups");
+		if(debug)log.info("EntityCap: processing "+  data.getAllGroups().size() + " groups in " + mSettings.getName() + ":");
 		for(EntityGroup group : data.getAllGroups())
 		{
-			if(debug)log.info("EntityCap: Group has " +  group.getEntities().size()+ " entities, density ->" + group.getDensity());
+			if(debug)log.info("  Group has " +  group.getEntities().size()+ " entities, density ->" + group.getDensity());
 
 			if(!mSettings.matchesWarn(group)) {
-				if (debug) log.info("EntityCap: Group did not match  warn settings");
+				if (debug) log.info("  Group did not match  warn settings");
 				continue;
 			}
 			mReporter.reportGroup(mSettings, group.getEntities().size(), group.getLocation());
