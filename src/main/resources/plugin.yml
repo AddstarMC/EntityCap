@@ -1,5 +1,6 @@
 name: EntityCap
 version: ${plugin.version}
+api-version: ${spigot.api.version}
 
 main: au.com.addstar.entitycap.EntityCapPlugin
 
